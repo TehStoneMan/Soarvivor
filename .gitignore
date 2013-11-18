@@ -28,6 +28,27 @@ local.properties
 # PDT-specific
 .buildpath
 
+#################
+## Minecraft
+#################
+
+*.class
+*.jar
+*.war
+*.ear
+*.lzma
+*.xcf
+
+/assets/forge
+/cpw
+/ibxm
+/net
+/paulscode
+*.cfg
+fmlversion.properties
+forge_logo.png
+mcpmod.info
+Start.java
 
 #################
 ## Visual Studio

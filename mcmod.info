@@ -1,0 +1,18 @@
+[
+{
+    "modid": "Soarvivor",
+    "name": "Soarvivor Game Mode",
+    "description": "A mod intended to implement a set of rules as defined in PaulSoarsJr's 'Man Vs. Minecraft' series of videos.",
+    "version": "0.2",
+    "url": "http://www.punchwood.com/index.php?/topic/21882-saorvivor-mod/",
+    "authorList":
+    [
+        "TehStoneMan"
+    ],
+    "dependencies":
+    [
+        "forge-9.10.0.789"
+    ],
+    "mcversion": "1.6.4"
+}
+]
