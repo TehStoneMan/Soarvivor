@@ -64,6 +64,8 @@ public class GuiHydrationBar extends Gui
 		int wet_level = props.getCurrentHydration();
 		int ice_level = props.getMaxIce() - props.getCurrentIce();
 
+		//LogHelper.log(Level.INFO, "Level : " + wet_level);
+
 		// Get the texture for the hydration bar
 		this.mc.getTextureManager().bindTexture(HYDRATION);
 

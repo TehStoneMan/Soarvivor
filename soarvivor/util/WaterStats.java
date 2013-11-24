@@ -2,6 +2,7 @@ package soarvivor.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.util.logging.Level;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.DamageSource;
 import soarvivor.entity.ExtendedPlayer;
+import soarvivor.lib.LogHelper;
 import soarvivor.lib.ModInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -19,7 +21,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class WaterStats // extends FoodStats
 {
 	/** The player's water and ice levels. */
-	private int		wetLevel				= ExtendedPlayer.MAX_HYDRATION / 2;
+	private int		wetLevel				= ExtendedPlayer.MAX_HYDRATION;
 	private int		iceLevel				= 0;
 
 	/** The player's water saturation. */
@@ -35,11 +37,15 @@ public class WaterStats // extends FoodStats
 
 	public void addStats(int wet, int ice, float saturation)
 	{
-		this.wetLevel = Math.min(wet + this.wetLevel, ExtendedPlayer.MAX_HYDRATION);
-		this.iceLevel = Math.min(ice + this.iceLevel, ExtendedPlayer.MAX_FROZEN);
+		int test = wetLevel;
 
-		this.waterSaturationLevel = Math.min(this.waterSaturationLevel + (float)wet * saturation
-				* 2.0F, (float)this.wetLevel);
+		wetLevel = Math.min(wet + wetLevel, ExtendedPlayer.MAX_HYDRATION);
+		iceLevel = Math.min(ice + iceLevel, ExtendedPlayer.MAX_FROZEN);
+
+		waterSaturationLevel = Math.min(waterSaturationLevel + (float)wet * saturation
+				* 2.0F, (float)wetLevel);
+
+		LogHelper.log(Level.INFO, test + " : " + this.wetLevel);
 	}
 
 	/**
