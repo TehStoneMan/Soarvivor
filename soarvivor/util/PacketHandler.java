@@ -5,22 +5,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import soarvivor.entity.ExtendedPlayer;
+import soarvivor.lib.LogHelper;
 import soarvivor.lib.ModInfo;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
+/**
+ * Handler for custom communication packets for Soarvivor mod
+ */
 public class PacketHandler implements IPacketHandler
 {
-	// The first change we make is to define some packet id's:
 	/**
-	 * Defining packet ids allow for subtypes of Packet250CustomPayload all on
-	 * single channel
+	 * Defines a packet id subtype to allow multiple packet types on a single
+	 * channel
 	 */
 	public static final byte	EXTENDED_PROPERTIES	= 1, OPEN_SERVER_GUI = 2;
 
@@ -31,15 +35,14 @@ public class PacketHandler implements IPacketHandler
 	@Override
 	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
 	{
-		// Now, our onPacketData method needs some changes:
-		// Adding this code will allow us to easily distinguish between various
-		// CustomPayload packets
+		// Get the data stream
 		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
 		byte packetType;
 
+		// Read our custom packet header to determine what kind of packet this
+		// is.
 		try
 		{
-			// Read the packet type
 			packetType = inputStream.readByte();
 		} catch (IOException e)
 		{
@@ -60,12 +63,21 @@ public class PacketHandler implements IPacketHandler
 					handleOpenGuiPacket(packet, (EntityPlayer)player, inputStream);
 					break;
 				default:
-					System.out.println("[PACKET][WARNING] Unknown packet type " + packetType);
+					LogHelper.log(Level.WARNING, "[PACKET HANDLER] Unknown packet type "
+							+ packetType);
 			}
 		}
 	}
 
 	// Making different methods to handle each channel helps keep things tidy:
+
+	/**
+	 * Handle an extended player properties packet
+	 * 
+	 * @param packet
+	 * @param player
+	 * @param inputStream
+	 */
 	private void handleExtendedProperties(Packet250CustomPayload packet, Player player,
 			DataInputStream inputStream)
 	{
@@ -88,6 +100,10 @@ public class PacketHandler implements IPacketHandler
 
 	/**
 	 * This method will open the appropriate server gui element for the player
+	 * 
+	 * @param packet
+	 * @param player
+	 * @param inputStream
 	 */
 	private void handleOpenGuiPacket(Packet250CustomPayload packet, EntityPlayer player,
 			DataInputStream inputStream)
@@ -112,6 +128,8 @@ public class PacketHandler implements IPacketHandler
 	// Here's the method we used in the last step to send the packet:
 	/**
 	 * Sends a packet to the server telling it to open gui for player
+	 * 
+	 * @param guiId
 	 */
 	public static final void sendOpenGuiPacket(int guiId)
 	{
