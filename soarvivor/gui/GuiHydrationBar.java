@@ -4,6 +4,7 @@ import java.util.logging.Level;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -13,27 +14,28 @@ import net.minecraftforge.event.ForgeSubscribe;
 import soarvivor.entity.ExtendedPlayer;
 import soarvivor.lib.LogHelper;
 
+/**
+ * Draw the custom Soarvivor mod GUI elements on the screen
+ * 
+ * @author TehStoneMan
+ */
 public class GuiHydrationBar extends Gui
 {
+	// Get the current Minecraft session
 	private Minecraft						mc;
 	/*
-	 * (my added notes:) ResourceLocation takes 2 arguments: your mod id and the
-	 * path to your texture file, starting from the folder 'textures/' from
-	 * '/src/minecraft/assets/yourmodid/', or you can write it all as a single
-	 * argument.
+	 * Get the texture file for the GUI elements
 	 * 
 	 * The texture file must be 256x256 (or multiples thereof)
-	 * 
-	 * If you want a texture to test out the tutorial with, I've uploaded the
-	 * mana_bar.png to my github page:
-	 * https://github.com/coolAlias/Forge_Tutorials/tree/master/textures/gui
 	 */
 	private static final ResourceLocation	HYDRATION	= new ResourceLocation("soarvivor",
 																"textures/gui/hydration.png");
 
-	// private static final ResourceLocation ICONS = new ResourceLocation(
-	// "textures/gui/icons.png");
-
+	/**
+	 * Hydration GUI constructor
+	 * 
+	 * @param mc
+	 */
 	public GuiHydrationBar(Minecraft mc)
 	{
 		super();
@@ -41,10 +43,11 @@ public class GuiHydrationBar extends Gui
 		this.mc = mc;
 	}
 
-	//
-	// This event is called by GuiIngameForge during each frame by
-	// GuiIngameForge.pre() and GuiIngameForce.post().
-	//
+	/**
+	 * Draw the player's hydration bar on the screen
+	 * 
+	 * @param event
+	 */
 	@ForgeSubscribe(priority = EventPriority.NORMAL)
 	public void onRenderAirBar(RenderGameOverlayEvent event)
 	{
@@ -54,36 +57,48 @@ public class GuiHydrationBar extends Gui
 
 		// Get our extended player properties and assign it locally so we can
 		// easily access it
-		ExtendedPlayer props = ExtendedPlayer.get(this.mc.thePlayer);
+		EntityPlayer player = this.mc.thePlayer;
+		ExtendedPlayer props = ExtendedPlayer.get(player);
 
 		if (props == null) return;
 
-		// Calculate starting position for the hydration bar and length of the
+		// Calculate starting position and length of for the hydration bar
 		int left = event.resolution.getScaledWidth() / 2 + 91;
 		int top = event.resolution.getScaledHeight() - GuiIngameForge.right_height;
 		int wet_level = props.getCurrentHydration();
 		int ice_level = props.getMaxIce() - props.getCurrentIce();
 
-		//LogHelper.log(Level.INFO, "Level : " + wet_level);
+		// LogHelper.log(Level.INFO, "Player " + player + " Level : " +
+		// wet_level);
 
 		// Get the texture for the hydration bar
 		this.mc.getTextureManager().bindTexture(HYDRATION);
 
+		/**
+		 * Draw our hydration bar on the GUI
+		 * 
+		 * <pre>
+		 * x = icon position on screen
+		 * idx = value to compare with water stats
+		 * icon_u = icon position in texture file (water lavel)
+		 * icon_v = icon position in texture file (ice level)
+		 * </pre>
+		 */
 		int x, idx, icon_u, icon_v;
 		for (int i = 0; i < 10; ++i)
 		{
 			idx = i * 2 + 1;
 			x = left - i * 8 - 9;
 			icon_u = icon_v = 0;
-			// Calculate wet level
+			// Calculate water level icon
 			if (idx < wet_level)
 				icon_u = 18;
 			else if (idx == wet_level) icon_u = 9;
-			// Calculate ice level
+			// Calculate ice level icon
 			if (idx > ice_level)
 				icon_v = 18;
 			else if (idx == ice_level) icon_v = 9;
-			// Draw bottles
+			// Draw water bottle icons in GUI
 			drawTexturedModalRect(x, top, icon_u, icon_v, 9, 9);
 		}
 
