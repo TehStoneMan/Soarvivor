@@ -1,27 +1,24 @@
 package soarvivor.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.util.logging.Level;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 import soarvivor.entity.ExtendedPlayer;
 import soarvivor.lib.LogHelper;
-import soarvivor.lib.ModInfo;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class WaterStats // extends FoodStats
 {
 	/** The player's water and ice levels. */
-	private int		wetLevel				= ExtendedPlayer.MAX_HYDRATION;
+	private int		wetLevel				= ExtendedPlayer.MAX_WET_LEVEL;
 	private int		iceLevel				= 0;
 
 	/** The player's water saturation. */
@@ -35,80 +32,6 @@ public class WaterStats // extends FoodStats
 	private int		prevWetLevel			= wetLevel;
 	private int		prevIceLevel			= iceLevel;
 
-	public void addStats(int wet, int ice, float saturation)
-	{
-		int test = wetLevel;
-
-		wetLevel = Math.min(wet + wetLevel, ExtendedPlayer.MAX_HYDRATION);
-		iceLevel = Math.min(ice + iceLevel, ExtendedPlayer.MAX_FROZEN);
-
-		waterSaturationLevel = Math.min(waterSaturationLevel + (float)wet * saturation
-				* 2.0F, (float)wetLevel);
-
-		LogHelper.log(Level.INFO, test + " : " + this.wetLevel);
-	}
-
-	/**
-	 * Eat some food.
-	 * 
-	 * <pre>
-	 * public void addStats(ItemFood par1ItemFood)
-	 * {
-	 * 	this.addStats(par1ItemFood.getHealAmount(), par1ItemFood.getSaturationModifier());
-	 * }
-	 * </pre>
-	 */
-
-	/**
-	 * Handles the food game logic.
-	 */
-	public void onUpdate(EntityPlayer player)
-	{
-		int difficulty = player.worldObj.difficultySetting;
-		this.prevWetLevel = this.wetLevel;
-		this.prevIceLevel = this.iceLevel;
-
-		/**
-		 * <pre>
-		 * if (this.foodExhaustionLevel &gt; 4.0F)
-		 * {
-		 * 	this.foodExhaustionLevel -= 4.0F;
-		 * 
-		 * 	if (this.foodSaturationLevel &gt; 0.0F)
-		 * 	{
-		 * 		this.foodSaturationLevel = Math.max(this.foodSaturationLevel - 1.0F, 0.0F);
-		 * 	} else if (i &gt; 0)
-		 * 	{
-		 * 		this.foodLevel = Math.max(this.foodLevel - 1, 0);
-		 * 	}
-		 * }
-		 * </pre>
-		 */
-
-		if (player.worldObj.getGameRules().getGameRuleBooleanValue("naturalRegeneration")
-				&& this.wetLevel >= 18 && player.shouldHeal())
-		{
-			++this.waterTimer;
-
-			if (this.waterTimer >= 80)
-			{
-				player.heal(0.5F);
-				this.waterTimer = 0;
-			}
-		} else if (this.wetLevel <= 0)
-		{
-			++this.waterTimer;
-
-			if (this.waterTimer >= 80)
-			{
-				if (player.getHealth() > 10.0F || difficulty >= 3 || player.getHealth() > 1.0F
-						&& difficulty >= 2) player.attackEntityFrom(DamageSource.starve, 1.0F);
-
-				this.waterTimer = 0;
-			}
-		} else this.waterTimer = 0;
-	}
-
 	/**
 	 * Reads water stats from an NBT object.
 	 */
@@ -119,6 +42,8 @@ public class WaterStats // extends FoodStats
 			this.wetLevel = par1NBTTagCompound.getInteger("wetLevel");
 			this.iceLevel = par1NBTTagCompound.getInteger("iceLevel");
 			this.waterTimer = par1NBTTagCompound.getInteger("waterTickTimer");
+			this.waterSaturationLevel = par1NBTTagCompound.getFloat("waterSaturationLevel");
+			this.waterExhaustionLevel = par1NBTTagCompound.getFloat("waterExhaustionLevel");
 		}
 	}
 
@@ -130,6 +55,8 @@ public class WaterStats // extends FoodStats
 		par1NBTTagCompound.setInteger("wetLevel", this.wetLevel);
 		par1NBTTagCompound.setInteger("iceLevel", this.iceLevel);
 		par1NBTTagCompound.setInteger("waterTickTimer", this.waterTimer);
+		par1NBTTagCompound.setFloat("waterSaturationLevel", this.waterSaturationLevel);
+		par1NBTTagCompound.setFloat("waterExhaustionLevel", this.waterExhaustionLevel);
 	}
 
 	/**
@@ -165,7 +92,7 @@ public class WaterStats // extends FoodStats
 	 */
 	public boolean needWater()
 	{
-		return this.wetLevel < ExtendedPlayer.MAX_HYDRATION;
+		return this.wetLevel < ExtendedPlayer.MAX_WET_LEVEL;
 	}
 
 	/**
@@ -174,17 +101,5 @@ public class WaterStats // extends FoodStats
 	public boolean needHeat()
 	{
 		return this.iceLevel > 0;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public void setWaterLevel(int wet)
-	{
-		this.wetLevel = Math.min(wet, ExtendedPlayer.MAX_HYDRATION);
-	}
-
-	@SideOnly(Side.CLIENT)
-	public void setIceLevel(int ice)
-	{
-		this.iceLevel = Math.min(ice, ExtendedPlayer.MAX_FROZEN);
 	}
 }

@@ -32,9 +32,9 @@ public class CommonProxy implements IGuiHandler
 			return new ContainerQuiver(player, player.inventory, new InventoryQuiver(
 					player.getHeldItem()));
 		}
-		if (guiId == soarvivor.soarvivor.GUI_CUSTOM_INV)
-			return new ContainerLimitedPlayer(player, player.inventory,
-					ExtendedPlayer.get(player).inventory);
+		// if (guiId == soarvivor.soarvivor.GUI_CUSTOM_INV)
+		// return new ContainerLimitedPlayer(player, player.inventory,
+		// ExtendedPlayer.get(player).inventory);
 		return null;
 	}
 
@@ -49,9 +49,9 @@ public class CommonProxy implements IGuiHandler
 			return new GuiQuiver((ContainerQuiver)new ContainerQuiver(player, player.inventory,
 					new InventoryQuiver(player.getHeldItem())));
 		}
-		if (guiId == soarvivor.soarvivor.GUI_CUSTOM_INV)
-			return new ContainerLimitedPlayer(player, player.inventory,
-					ExtendedPlayer.get(player).inventory);
+		// if (guiId == soarvivor.soarvivor.GUI_CUSTOM_INV)
+		// return new ContainerLimitedPlayer(player, player.inventory,
+		// ExtendedPlayer.get(player).inventory);
 		return null;
 	}
 

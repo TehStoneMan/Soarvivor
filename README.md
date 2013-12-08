@@ -14,14 +14,17 @@ Features include:
  * Hydration bar
      An extra stat bar above the food bar that shows the current level of the player's hydration as a series of full/half/empty bottle icons. Can also show the player's "Coldness" level as iced-over versions of the bottle icons.
 
- * Drinking from a water bottle increases the player's hydration
+ * Drinking and eating certain food items and potions increases the player's hydration
+ 
+ * Hot biomes decrease the player's hydration
+ 
+ * Cold biomes can freeze the player, warm biomes restores the player's body tempreture
+ 
+ * Proximity to heat sources (fire, lava) warms the player.
 
 To Do:
 ======
 
-* Include hydration increase to other consumable items
 * Activity decreases hydration
-* Biome effects hydration/coldness
-* Proximity to heat sources
 * Limit the player's inventory to one line + the hot bar
 * Limit the stack size in the player's inventory

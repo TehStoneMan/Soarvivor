@@ -1,8 +1,7 @@
 package soarvivor.gui;
 
-import java.util.logging.Level;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -12,7 +11,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import soarvivor.entity.ExtendedPlayer;
-import soarvivor.lib.LogHelper;
+import soarvivor.util.DebugInfo;
 
 /**
  * Draw the custom Soarvivor mod GUI elements on the screen
@@ -68,9 +67,6 @@ public class GuiHydrationBar extends Gui
 		int wet_level = props.getCurrentHydration();
 		int ice_level = props.getMaxIce() - props.getCurrentIce();
 
-		// LogHelper.log(Level.INFO, "Player " + player + " Level : " +
-		// wet_level);
-
 		// Get the texture for the hydration bar
 		this.mc.getTextureManager().bindTexture(HYDRATION);
 
@@ -84,22 +80,32 @@ public class GuiHydrationBar extends Gui
 		 * icon_v = icon position in texture file (ice level)
 		 * </pre>
 		 */
-		int x, idx, icon_u, icon_v;
+		int x, y, idx, icon_u, icon_v;
 		for (int i = 0; i < 10; ++i)
 		{
 			idx = i * 2 + 1;
 			x = left - i * 8 - 9;
+			y = top;
 			icon_u = icon_v = 0;
+
 			// Calculate water level icon
 			if (idx < wet_level)
 				icon_u = 18;
 			else if (idx == wet_level) icon_u = 9;
+
 			// Calculate ice level icon
 			if (idx > ice_level)
 				icon_v = 18;
 			else if (idx == ice_level) icon_v = 9;
+
+			// if (props.getSaturationLevel() <= 0.0F && updateCounter % (level
+			// * 3 + 1) == 0)
+			// {
+			// y = top + (rand.nextInt(3) - 1);
+			// }
+
 			// Draw water bottle icons in GUI
-			drawTexturedModalRect(x, top, icon_u, icon_v, 9, 9);
+			drawTexturedModalRect(x, y, icon_u, icon_v, 9, 9);
 		}
 
 		/**
@@ -115,8 +121,13 @@ public class GuiHydrationBar extends Gui
 		 * render from the start point (u, v)
 		 */
 
+		// draw debug info
+		//FontRenderer fontRender = mc.fontRenderer;
+		//DebugInfo.display(fontRender);
+
 		// Restore texture to render air bubbles and move position up
 		this.mc.getTextureManager().bindTexture(icons);
 		GuiIngameForge.right_height += 10;
+
 	}
 }

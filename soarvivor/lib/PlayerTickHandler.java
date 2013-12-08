@@ -1,8 +1,6 @@
 package soarvivor.lib;
 
 import java.util.EnumSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -41,11 +39,60 @@ public class PlayerTickHandler implements ITickHandler
 				// Has item been used up?
 				if (player.getItemInUseCount() == 1)
 				{
-					// ItemStack waterBottle = new ItemStack(Item.potion);
+					// Check the item in use, and change hydration as
+					// appropriate
 
-					// Check if item is water bottle, and add to hydration if it is
-					if (itemUsing.itemID == Item.potion.itemID && itemUsing.getItemDamage() == 0)
-						props.getWaterStats().addStats(5, 0, 0);
+					// Potion effects on hydradtion
+					if (itemUsing.itemID == Item.potion.itemID) switch (itemUsing.getItemDamage())
+					{
+						case 0: // Water bottle
+							props.addWaterStats(5, 0, 1f);
+							break;
+						case 6: // Instant Health
+							props.addWaterStats(10, 0, 2f);
+							break;
+						case 7: // Instant Damage
+							props.addWaterStats(-5, 0, -0.5f);
+							break;
+						case 9: // Nausea
+							props.addWaterStats(-2, 0, 0f);
+							break;
+						case 10: // Regeneration
+							props.addWaterStats(5, 0, 2f);
+							break;
+						case 13: // Water breathing
+							props.addWaterStats(20, 0, 1f);
+							break;
+						case 17: // Hunger
+							props.addWaterStats(-5, 0, -1f);
+							break;
+						case 21: // Health boost
+							props.addWaterStats(15, 0, 2f);
+							break;
+						default:
+							props.addWaterStats(2, 0, 1f);
+					}
+
+					// Food items
+					if (itemUsing.itemID == Item.appleRed.itemID)
+					{
+						props.addWaterStats(2, 0, 1f);
+					}
+
+					if (itemUsing.itemID == Item.appleGold.itemID)
+					{
+						props.addWaterStats(10, 0, 2f);
+					}
+
+					if (itemUsing.itemID == Item.melon.itemID)
+					{
+						props.addWaterStats(5, 0, 1f);
+					}
+
+					if (itemUsing.itemID == Item.bowlSoup.itemID)
+					{
+						props.addWaterStats(5, 0, 1f);
+					}
 				}
 			}
 		}
@@ -64,8 +111,8 @@ public class PlayerTickHandler implements ITickHandler
 		// Process tick
 		if (!worldObj.isRemote)
 		{
-			WaterStats waterStats = props.getWaterStats();
-			waterStats.onUpdate(player);
+			//WaterStats waterStats = props.getWaterStats();
+			props.onUpdate();
 		}
 	}
 

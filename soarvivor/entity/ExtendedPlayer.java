@@ -2,63 +2,90 @@ package soarvivor.entity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.util.logging.Level;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.IExtendedEntityProperties;
-import soarvivor.inventory.InventoryLimitedPlayer;
+import soarvivor.lib.LogHelper;
 import soarvivor.lib.ModInfo;
-import soarvivor.util.WaterStats;
+import soarvivor.util.DebugInfo;
+import soarvivor.util.PacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
+/**
+ * Adds a set of extended properties to track player hydration
+ * 
+ * @author TehStoneMan
+ * 
+ */
 public class ExtendedPlayer implements IExtendedEntityProperties
 {
 	/*
-	 * Here I create a constant EXT_PROP_NAME for this class of properties. You
-	 * need a unique name for every instance of IExtendedEntityProperties you
-	 * make, and doing it at the top of each class as a constant makes it very
-	 * easy to organise and avoid typos. It's easiest to keep the same constant
-	 * name in every class, as it will be distinguished by the class name:
-	 * ExtendedPlayer.EXT_PROP_NAME vs. ExtendedEntity.EXT_PROP_NAME
+	 * Create a constant to store the unique name for this instance of
+	 * IExtendedEntityProperties
 	 */
-	public final static String			EXT_PROP_NAME	= "PlayerHydration";
+	public final static String	EXT_PROP_NAME			= "SRVRExtendedPlayer";
 
-	// I always include the entity to which the properties belong for easy
+	// Store a reference to the entity to which the properties belong for easy
 	// access. It's final because we won't be changing which player it is
-	private final EntityPlayer			player;
+	private final EntityPlayer	player;
 
-	// Declare other variables you want to add here
+	// Define the maximum hydration (WET) and ice levels.
+	public static final int		MAX_WET_LEVEL			= 20;
+	public static final int		MAX_ICE_LEVEL			= 20;
 
-	// We're adding hydration to the player, so we'll need current and max
-	// hydration
-	public static final int				MAX_HYDRATION	= 20;
-	public static final int				MAX_FROZEN		= 20;
+	// The player's water and ice levels.
+	private int					wetLevel				= ExtendedPlayer.MAX_WET_LEVEL;
+	private int					iceLevel				= 0;
+
+	// The player's water saturation.
+	private float				waterSaturationLevel	= 5.0F;
+
+	// The player's water exhaustion.
+	private float				waterExhaustionLevel;
+
+	// The player's water timer value.
+	private int					waterTimer, iceTimer;
+	private int					prevWetLevel			= wetLevel;
+	private int					prevIceLevel			= iceLevel;
+
+	// Timer for calculating environmental effects
+	private int					envTimer;
 
 	/** The player's water stats. (See class WaterStats) */
-	protected WaterStats				waterStats		= new WaterStats();
+	// protected WaterStats waterStats = new WaterStats();
 
-	// This goes with all other variables declared at the beginning of the
-	// class, such as currentMana and maxMana
 	/** Custom inventory slots will be stored here - be sure to save to NBT! */
-	public final InventoryLimitedPlayer	inventory		= new InventoryLimitedPlayer();
+	// public final InventoryLimitedPlayer inventory = new
+	// InventoryLimitedPlayer();
 
-	/*
+	/**
 	 * The default constructor takes no arguments, but I put in the Entity so I
 	 * can initialise the above variable 'player'
 	 * 
 	 * Also, it's best to initialise any other variables you may have added,
 	 * just like in any constructor.
+	 * 
+	 * @param player
 	 */
 	public ExtendedPlayer(EntityPlayer player)
 	{
 		this.player = player;
 		// Start with max hydration and zero ice.
+		// this.currentWater = MAX_WET_LEVEL / 2;
+		// this.currentIce = 0;
+
 		// this.player.getDataWatcher().addObject(WET_WATCHER, MAX_HYDRATION);
 		// this.player.getDataWatcher().addObject(ICE_WATCHER, 0);
 	}
@@ -67,6 +94,8 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	 * Used to register these extended properties for the player during
 	 * EntityConstructing event This method is for convenience only; it will
 	 * make your code look nicer
+	 * 
+	 * @param player
 	 */
 	public static final void register(EntityPlayer player)
 	{
@@ -76,6 +105,9 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	/**
 	 * Returns ExtendedPlayer properties for player This method is for
 	 * convenience only; it will make your code look nicer
+	 * 
+	 * @param player
+	 * @return ExtendedPlayer
 	 */
 	public static final ExtendedPlayer get(EntityPlayer player)
 	{
@@ -92,10 +124,10 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 
 		// We only have 2 variables currently; save them both to the new tag
 		properties.setInteger("currentHydration", this.getCurrentHydration());
-		properties.setInteger("iceHydration", this.getCurrentIce());
+		properties.setInteger("currentIce", this.getCurrentIce());
 
 		// Read custom inventory from NBT
-		this.inventory.readFromNBT(properties);
+		// this.inventory.readFromNBT(properties);
 
 		/*
 		 * Now add our custom tag to the player's tag with a unique name (our
@@ -118,11 +150,13 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		NBTTagCompound properties = (NBTTagCompound)compound.getTag(EXT_PROP_NAME);
 
 		// Get our data from the custom tag compound
-		this.waterStats.setWaterLevel(properties.getInteger("currentHydration"));
-		this.waterStats.setIceLevel(properties.getInteger("iceHydration"));
+		this.wetLevel = properties.getInteger("currentHydration");
+		this.iceLevel = properties.getInteger("currentIce");
 
 		// Write custom inventory to NBT
-		this.inventory.writeToNBT(properties);
+		// this.inventory.writeToNBT(properties);
+
+		sync();
 	}
 
 	/*
@@ -133,73 +167,25 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	public void init(Entity entity, World world)
 	{}
 
-	public int getCurrentHydration()
-	{
-		return this.waterStats.getWaterLevel();
-	}
-
-	public int getCurrentIce()
-	{
-		return this.waterStats.getIceLevel();
-	}
-
-	public int getMaxHydration()
-	{
-		return MAX_HYDRATION;
-	}
-
-	public int getMaxIce()
-	{
-		return MAX_FROZEN;
-	}
-
-	/**
-	 * Returns the player's FoodStats object.
-	 */
-	public WaterStats getWaterStats()
-	{
-		return this.waterStats;
-	}
-
-	public boolean canDrink(boolean par1)
-	{
-		return (par1 || this.waterStats.needWater()) && !this.player.capabilities.disableDamage;
-	}
-
-	/**
-	 * Sets current hydration to amount or MAX_HYDRATION, whichever is lesser
-	 */
-	public void setCurrentHydration(int amount)
-	{
-		this.waterStats.setWaterLevel(amount);
-		this.sync();
-	}
-
-	/**
-	 * Sets current ice to amount or MAX_FROZEN, whichever is lesser
-	 */
-	public void setCurrentIce(int amount)
-	{
-		this.waterStats.setIceLevel(amount);
-		this.sync();
-	}
-
 	/**
 	 * Sends a packet to the client containing information stored on the server
 	 * for ExtendedPlayer
 	 */
 	public final void sync()
 	{
+		// Check if data has actually changed
+		if (wetLevel == prevWetLevel && iceLevel == prevIceLevel) return;
+
 		// We only want to send from the server to the client
 		if (FMLCommonHandler.instance().getEffectiveSide().isServer())
 		{
+			LogHelper.log(Level.INFO, "Sync");
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(8);
 			DataOutputStream outputStream = new DataOutputStream(bos);
 
-			// We'll write max mana first so when we set current mana client
-			// side, it doesn't get set to 0 (see methods below)
 			try
 			{
+				outputStream.write(PacketHandler.EXTENDED_PROPERTIES);
 				outputStream.writeInt(this.getCurrentHydration());
 				outputStream.writeInt(this.getCurrentIce());
 			} catch (Exception ex)
@@ -213,5 +199,232 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 			EntityPlayerMP player1 = (EntityPlayerMP)player;
 			PacketDispatcher.sendPacketToPlayer(packet, (Player)player1);
 		}
+	}
+
+	// Handle water stats
+	public int getCurrentHydration()
+	{
+		// return this.currentWater;
+		return this.wetLevel;
+	}
+
+	public int getCurrentIce()
+	{
+		return this.iceLevel;
+	}
+
+	public int getMaxHydration()
+	{
+		return MAX_WET_LEVEL;
+	}
+
+	public int getMaxIce()
+	{
+		return MAX_ICE_LEVEL;
+	}
+
+	public float getSaturationLevel()
+	{
+		return waterSaturationLevel;
+	}
+
+	/**
+	 * Sets current hydration to amount or MAX_HYDRATION, whichever is lesser
+	 */
+	public void setCurrentHydration(int amount)
+	{
+		this.wetLevel = Math.min(amount, MAX_WET_LEVEL);
+		DebugInfo.wetLevel = wetLevel;
+		this.sync();
+	}
+
+	/**
+	 * Sets current ice to amount or MAX_FROZEN, whichever is lesser
+	 */
+	public void setCurrentIce(int amount)
+	{
+		this.iceLevel = Math.min(amount, MAX_ICE_LEVEL);
+		DebugInfo.iceLevel = iceLevel;
+		this.sync();
+	}
+
+	public void addWaterStats(int wet, int ice, float saturation)
+	{
+		wetLevel = Math.max(Math.min(wet + wetLevel, ExtendedPlayer.MAX_WET_LEVEL), 0);
+		iceLevel = Math.max(Math.min(ice + iceLevel, ExtendedPlayer.MAX_ICE_LEVEL), 0);
+
+		waterSaturationLevel = Math.min(waterSaturationLevel + (float)wet * saturation * 2.0F,
+				(float)wetLevel);
+
+		// update debug info
+		DebugInfo.wetLevel = wetLevel;
+		DebugInfo.iceLevel = iceLevel;
+		DebugInfo.waterSaturationLevel = waterSaturationLevel;
+
+		sync();
+	}
+
+	/**
+	 * Increases exhaustion level by supplied amount
+	 */
+	public void addWaterExhaustion(float amount)
+	{
+		if (!this.player.capabilities.disableDamage)
+		{
+			if (!this.player.worldObj.isRemote)
+			{
+				this.waterExhaustionLevel = Math.min(this.waterExhaustionLevel + amount, 40.0F);
+
+				// Update debug info
+				DebugInfo.waterExhaustionLevel = this.waterExhaustionLevel;
+			}
+		}
+	}
+
+	/**
+	 * Handles the hydration game logic. Mostly copied from vanilla FoodStats.
+	 */
+	public void onUpdate()
+	{
+		int difficulty = player.worldObj.difficultySetting;
+		this.prevWetLevel = this.wetLevel;
+		this.prevIceLevel = this.iceLevel;
+		World world = player.worldObj;
+
+		if (++envTimer >= 100)
+		{
+			// Get world and biome info
+			BiomeGenBase biome = world.getBiomeGenForCoords((int)player.lastTickPosX,
+					(int)player.lastTickPosZ);
+			float temperature = biome.getFloatTemperature();
+
+			// Scan surounding blocks for heat sources
+			float heat = 0f;
+			int foundBlock;
+			float distance = 1f;
+			for (int y = -5; y < 5; y++)
+			{
+				for (int z = -5; z < 5; z++)
+				{
+					for (int x = -5; x < 5; x++)
+					{
+						int findX = (int)player.lastTickPosX + x;
+						int findY = (int)player.lastTickPosY + y;
+						int findZ = (int)player.lastTickPosZ + z;
+						foundBlock = world.getBlockId(findX, findY, findZ);
+						float foundDistance = 1f - (getDistance(x, y, z) / 9f);
+						if (foundBlock == Block.fire.blockID)
+						{
+							heat += 2f * foundDistance;
+							if (foundDistance < distance) distance = foundDistance;
+						}
+						if (foundBlock == Block.lavaMoving.blockID)
+						{
+							heat += foundDistance;
+							if (foundDistance < distance) distance = foundDistance;
+						}
+						if (foundBlock == Block.lavaStill.blockID)
+						{
+							heat += foundDistance;
+							if (foundDistance < distance) distance = foundDistance;
+						}
+					}
+				}
+			}
+			heat = Math.min(heat, 2f);
+
+			// Update debug info
+			DebugInfo.biomeTemperature = temperature;
+			DebugInfo.heat = heat;
+			DebugInfo.distance = distance;
+			// DebugInfo.distance = getDistance(5, 5, 5) / 9f;
+
+			// Test for hot biome
+			if (Math.max(temperature, heat) >= 1.0)
+			{
+				this.addWaterExhaustion(Math.max(temperature, heat));
+				addWaterStats(0, -1, 0);
+			}
+
+			// Test for cold biome
+			if (biome.getEnableSnow())
+			{
+				if (++iceTimer > 2)
+				{
+					if (heat <= 0) addWaterStats(0, 1, 0);
+					if (heat >= 1) addWaterStats(0, -1, 0);
+					iceTimer = 0;
+				}
+			} else
+			{
+				addWaterStats(0, -1, 0);
+				iceTimer = 0;
+			}
+
+			// Reset timer
+			envTimer = 0;
+		}
+
+		if (this.waterExhaustionLevel > 4.0F)
+		{
+			this.waterExhaustionLevel -= 4.0F;
+
+			if (this.waterSaturationLevel > 0.0F)
+			{
+				this.waterSaturationLevel = Math.max(this.waterSaturationLevel - 0.5F, 0.0F);
+			} else if (difficulty > 0)
+			{
+				this.wetLevel = Math.max(this.wetLevel - 1, 0);
+
+				sync();
+			}
+		}
+
+		// Check game rules to see if auto healing is enabled
+		if (world.getGameRules().getGameRuleBooleanValue("naturalRegeneration")
+				&& this.wetLevel >= 18 && player.shouldHeal() && this.iceLevel <= 2)
+		{
+			// Test to heal player
+			++this.waterTimer;
+
+			if (this.waterTimer >= 80)
+			{
+				player.heal(0.5F);
+				this.addWaterExhaustion(3.0F);
+				this.waterTimer = 0;
+			}
+		} else if (this.wetLevel <= 0 || this.iceLevel >= 18)
+		{
+			// Test to hurt player
+			++this.waterTimer;
+
+			if (this.waterTimer >= 80)
+			{
+				if (player.getHealth() > 10.0F || difficulty >= 3 || player.getHealth() > 1.0F
+						&& difficulty >= 2)
+				{
+					if (this.wetLevel <= 0) player.attackEntityFrom(DamageSource.starve, 0.5F);
+					if (this.iceLevel >= 18) player.attackEntityFrom(DamageSource.starve, 2.0F);
+				}
+
+				this.waterTimer = 0;
+			}
+		} else this.waterTimer = 0;
+
+		// update debug info
+		DebugInfo.waterTimer = waterTimer;
+		DebugInfo.waterSaturationLevel = waterSaturationLevel;
+		DebugInfo.envTimer = envTimer;
+		DebugInfo.waterExhaustionLevel = this.waterExhaustionLevel;
+		DebugInfo.wetLevel = wetLevel;
+		DebugInfo.iceLevel = iceLevel;
+	}
+
+	/**
+	 * Gets the distance to an offset.
+	 */
+	public float getDistance(double dx, double dy, double dz)
+	{
+		return MathHelper.sqrt_double(dx * dx + dy * dy + dz * dz);
 	}
 }

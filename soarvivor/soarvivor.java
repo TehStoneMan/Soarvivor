@@ -37,6 +37,7 @@ import soarvivor.lib.ModInfo;
 import soarvivor.lib.SvrEventHandler;
 import soarvivor.lib.config.ConfigHandler;
 import soarvivor.proxies.CommonProxy;
+import soarvivor.util.DebugInfo;
 import soarvivor.util.PacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -74,12 +75,13 @@ public class soarvivor
 
 	/** Custom GUI indices: */
 	public static final int		GUI_CUSTOM_INV			= modGuiIndex++;
-
+	
 	// Perform pre-initialisation operations
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		LogHelper.init();
+		DebugInfo.init();
 
 		LogHelper.log(Level.INFO, "Initialising proxies.");
 		proxy.initRenderers();
