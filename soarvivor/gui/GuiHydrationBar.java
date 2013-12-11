@@ -11,6 +11,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import soarvivor.entity.ExtendedPlayer;
+import soarvivor.lib.config.Settings;
 import soarvivor.util.DebugInfo;
 
 /**
@@ -122,8 +123,11 @@ public class GuiHydrationBar extends Gui
 		 */
 
 		// draw debug info
-		//FontRenderer fontRender = mc.fontRenderer;
-		//DebugInfo.display(fontRender);
+		if (Settings.debug)
+		{
+			FontRenderer fontRender = mc.fontRenderer;
+			DebugInfo.display(fontRender);
+		}
 
 		// Restore texture to render air bubbles and move position up
 		this.mc.getTextureManager().bindTexture(icons);

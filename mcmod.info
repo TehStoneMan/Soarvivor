@@ -3,7 +3,7 @@
     "modid": "Soarvivor",
     "name": "Soarvivor Game Mode",
     "description": "A mod intended to implement a set of rules as defined in PaulSoarsJr's 'Man Vs. Minecraft' series of videos.",
-    "version": "0.3",
+    "version": "0.3.1",
     "url": "http://www.punchwood.com/index.php?/topic/21882-saorvivor-mod/",
     "authorList":
     [
@@ -11,7 +11,7 @@
     ],
     "dependencies":
     [
-        "forge-9.10.0.789"
+        "forge-9.11.1.953"
     ],
     "mcversion": "1.6.4"
 }

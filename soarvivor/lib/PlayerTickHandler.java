@@ -7,7 +7,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import soarvivor.entity.ExtendedPlayer;
-import soarvivor.util.WaterStats;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
@@ -21,7 +20,7 @@ public class PlayerTickHandler implements ITickHandler
 	{}
 
 	@Override
-	public void onPlayerTickStart(EnumSet< TickType > type, Object... tickData)
+	public void tickStart(EnumSet< TickType > type, Object... tickData)
 	{
 		// Get player, extended properties and world for the tick
 		EntityPlayer player = (EntityPlayer)tickData[0];
@@ -96,11 +95,10 @@ public class PlayerTickHandler implements ITickHandler
 				}
 			}
 		}
-
 	}
 
 	@Override
-	public void onPlayerTickEnd(EnumSet< TickType > type, Object... tickData)
+	public void tickEnd(EnumSet< TickType > type, Object... tickData)
 	{
 		// Get player, extended properties and world for the tick
 		EntityPlayer player = (EntityPlayer)tickData[0];
@@ -126,6 +124,16 @@ public class PlayerTickHandler implements ITickHandler
 	public String getLabel()
 	{
 		return null;
+	}
+
+	public void tickStart2(EnumSet<TickType> type, Object... tickData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void tickEnd2(EnumSet<TickType> type, Object... tickData) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

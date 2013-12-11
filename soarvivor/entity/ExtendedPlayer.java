@@ -179,7 +179,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		// We only want to send from the server to the client
 		if (FMLCommonHandler.instance().getEffectiveSide().isServer())
 		{
-			LogHelper.log(Level.INFO, "Sync");
+			//LogHelper.log(Level.INFO, "Sync");
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(8);
 			DataOutputStream outputStream = new DataOutputStream(bos);
 

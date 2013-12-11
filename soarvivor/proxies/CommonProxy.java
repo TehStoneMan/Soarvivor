@@ -1,5 +1,7 @@
 package soarvivor.proxies;
 
+import java.util.logging.Level;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import soarvivor.entity.ExtendedPlayer;
@@ -8,6 +10,7 @@ import soarvivor.gui.GuiQuiver;
 import soarvivor.inventory.ContainerLimitedPlayer;
 import soarvivor.inventory.ContainerQuiver;
 import soarvivor.inventory.InventoryQuiver;
+import soarvivor.lib.LogHelper;
 import soarvivor.lib.PlayerTickHandler;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.registry.TickRegistry;
@@ -57,6 +60,7 @@ public class CommonProxy implements IGuiHandler
 
 	public void registerServerTickHandler()
 	{
+		LogHelper.log(Level.INFO, "Tick Test!");
 		TickRegistry.registerTickHandler(new PlayerTickHandler(), Side.SERVER);
 	}
 }

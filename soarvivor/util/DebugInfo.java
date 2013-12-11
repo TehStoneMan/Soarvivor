@@ -1,6 +1,7 @@
 package soarvivor.util;
 
 import soarvivor.entity.ExtendedPlayer;
+import soarvivor.lib.config.Settings;
 import net.minecraft.client.gui.FontRenderer;
 
 /**
@@ -31,6 +32,7 @@ public class DebugInfo
 
 	public static void display(FontRenderer fontRender)
 	{
+		if( !Settings.debug ) return;
 		fontRender.drawStringWithShadow("envTimer : " + envTimer, 8, 8, 0xFFFFFF);
 		fontRender.drawStringWithShadow("WExh : " + waterExhaustionLevel, 8, 16, 0xFFFFFF);
 		fontRender.drawStringWithShadow("Temp : " + biomeTemperature, 8, 24, 0xFFFFFF);

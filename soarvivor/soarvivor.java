@@ -115,6 +115,7 @@ public class soarvivor
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
+		LogHelper.log(Level.INFO, "Registering event handlers.");
 		// Register event handler
 		MinecraftForge.EVENT_BUS.register(new SvrEventHandler());
 
@@ -130,5 +131,6 @@ public class soarvivor
 
 		// Register tick handler
 		proxy.registerServerTickHandler();
+		LogHelper.log(Level.INFO, "Event handlers registered.");
 	}
 }

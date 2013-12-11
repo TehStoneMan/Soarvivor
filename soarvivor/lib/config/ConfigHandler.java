@@ -11,11 +11,13 @@ public class ConfigHandler
 		Configuration config = new Configuration(configFile);
 
 		config.load();
-		
+
 		// Block IDs
 
 		// General settings
-		Settings.limitStackSize = config.get(config.CATEGORY_GENERAL, "limitStackSize", 16).getInt();
+		Settings.limitStackSize = config.get(config.CATEGORY_GENERAL, "limitStackSize", 16)
+				.getInt();
+		Settings.debug = config.get(config.CATEGORY_GENERAL, "debug", false).getBoolean(false);
 
 		// Item IDs
 		Ids.quiver = config.getItem(config.CATEGORY_ITEM, Names.quiver_Name, 17000).getInt() - 256;
