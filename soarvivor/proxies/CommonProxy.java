@@ -60,7 +60,6 @@ public class CommonProxy implements IGuiHandler
 
 	public void registerServerTickHandler()
 	{
-		LogHelper.log(Level.INFO, "Tick Test!");
 		TickRegistry.registerTickHandler(new PlayerTickHandler(), Side.SERVER);
 	}
 }

@@ -19,10 +19,14 @@ public class DebugInfo
 	public static int	prevWetLevel			= wetLevel;
 	public static int	prevIceLevel			= iceLevel;
 	public static int	envTimer				= 0;
-	public static float	waterExhaustionLevel	= 0f;
 	public static float	biomeTemperature		= 0f;
 	public static float	heat					= 0f;
 	public static float	distance				= 0f;
+
+	public static float	foodExhuastion			= 0f;
+	public static float	waterExhaustionLevel	= 0f;
+
+	public static float	misc					= 0f;
 
 	public DebugInfo()
 	{}
@@ -32,17 +36,33 @@ public class DebugInfo
 
 	public static void display(FontRenderer fontRender)
 	{
-		if( !Settings.debug ) return;
-		fontRender.drawStringWithShadow("envTimer : " + envTimer, 8, 8, 0xFFFFFF);
-		fontRender.drawStringWithShadow("WExh : " + waterExhaustionLevel, 8, 16, 0xFFFFFF);
-		fontRender.drawStringWithShadow("Temp : " + biomeTemperature, 8, 24, 0xFFFFFF);
-		fontRender.drawStringWithShadow("heat : " + heat + " distance : " + distance, 8, 32, 0xFFFFFF);
-
-		fontRender.drawStringWithShadow("waterTimer : " + waterTimer, 8, 40, 0xFFFFFF);
-		fontRender.drawStringWithShadow("waterSaturationLevel : " + waterSaturationLevel, 8, 48,
+		if (!Settings.debug) return;
+		fontRender.drawStringWithShadow("envTimer : " + envTimer, 8, 8 * 1,
 				0xFFFFFF);
 
-		fontRender.drawStringWithShadow("wetLevel : " + wetLevel, 8, 64, 0xFFFFFF);
-		fontRender.drawStringWithShadow("iceLevel : " + iceLevel, 8, 72, 0xFFFFFF);
+		fontRender.drawStringWithShadow("foodExhuastion : " + foodExhuastion,
+				8, 8 * 3, 0xFFFFFF);
+		fontRender.drawStringWithShadow("waterExhaustionLevel : "
+				+ waterExhaustionLevel, 8, 8 * 4, 0xFFFFFF);
+
+		fontRender.drawStringWithShadow("misc : " + misc, 8, 8 * 6, 0xFFFFFF);
+
+		fontRender.drawStringWithShadow("waterSaturationLevel : "
+				+ waterSaturationLevel, 8, 8 * 8, 0xFFFFFF);
+		/*
+		 * fontRender.drawStringWithShadow("Temp : " + biomeTemperature, 8, 24,
+		 * 0xFFFFFF);
+		 * fontRender.drawStringWithShadow("heat : " + heat + " distance : "
+		 * + distance, 8, 32, 0xFFFFFF);
+		 * 
+		 * fontRender.drawStringWithShadow("waterTimer : " + waterTimer, 8, 40,
+		 * 0xFFFFFF);
+		 * 
+		 * fontRender.drawStringWithShadow("wetLevel : " + wetLevel, 8, 64,
+		 * 0xFFFFFF);
+		 * fontRender.drawStringWithShadow("iceLevel : " + iceLevel, 8, 72,
+		 * 0xFFFFFF);
+		 */
+
 	}
 }

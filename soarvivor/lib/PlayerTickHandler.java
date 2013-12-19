@@ -1,49 +1,47 @@
 package soarvivor.lib;
 
+import java.lang.reflect.Field;
 import java.util.EnumSet;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
 import soarvivor.entity.ExtendedPlayer;
+import soarvivor.util.DebugInfo;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
-public class PlayerTickHandler implements ITickHandler
-{
+public class PlayerTickHandler implements ITickHandler {
 	/*
 	 * This Tick Handler will fire for whatever TickType's you construct and
 	 * register it with.
 	 */
-	public PlayerTickHandler()
-	{}
+	public PlayerTickHandler() {
+	}
 
 	@Override
-	public void tickStart(EnumSet< TickType > type, Object... tickData)
-	{
+	public void tickStart(EnumSet<TickType> type, Object... tickData) {
 		// Get player, extended properties and world for the tick
-		EntityPlayer player = (EntityPlayer)tickData[0];
+		EntityPlayer player = (EntityPlayer) tickData[0];
 		ExtendedPlayer props = ExtendedPlayer.get(player);
 
 		World worldObj = player.worldObj;
 
 		// Check if player is using an item
-		if (player.getItemInUse() != null)
-		{
+		if (player.getItemInUse() != null) {
 			ItemStack itemUsing = player.inventory.getCurrentItem();
 
-			if (itemUsing == player.getItemInUse())
-			{
+			if (itemUsing == player.getItemInUse()) {
 				// Has item been used up?
-				if (player.getItemInUseCount() == 1)
-				{
+				if (player.getItemInUseCount() == 1) {
 					// Check the item in use, and change hydration as
 					// appropriate
 
 					// Potion effects on hydradtion
-					if (itemUsing.itemID == Item.potion.itemID) switch (itemUsing.getItemDamage())
-					{
+					if (itemUsing.itemID == Item.potion.itemID)
+						switch (itemUsing.getItemDamage()) {
 						case 0: // Water bottle
 							props.addWaterStats(5, 0, 1f);
 							break;
@@ -70,26 +68,22 @@ public class PlayerTickHandler implements ITickHandler
 							break;
 						default:
 							props.addWaterStats(2, 0, 1f);
-					}
+						}
 
 					// Food items
-					if (itemUsing.itemID == Item.appleRed.itemID)
-					{
+					if (itemUsing.itemID == Item.appleRed.itemID) {
 						props.addWaterStats(2, 0, 1f);
 					}
 
-					if (itemUsing.itemID == Item.appleGold.itemID)
-					{
+					if (itemUsing.itemID == Item.appleGold.itemID) {
 						props.addWaterStats(10, 0, 2f);
 					}
 
-					if (itemUsing.itemID == Item.melon.itemID)
-					{
+					if (itemUsing.itemID == Item.melon.itemID) {
 						props.addWaterStats(5, 0, 1f);
 					}
 
-					if (itemUsing.itemID == Item.bowlSoup.itemID)
-					{
+					if (itemUsing.itemID == Item.bowlSoup.itemID) {
 						props.addWaterStats(5, 0, 1f);
 					}
 				}
@@ -98,42 +92,27 @@ public class PlayerTickHandler implements ITickHandler
 	}
 
 	@Override
-	public void tickEnd(EnumSet< TickType > type, Object... tickData)
-	{
+	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
 		// Get player, extended properties and world for the tick
-		EntityPlayer player = (EntityPlayer)tickData[0];
+		EntityPlayer player = (EntityPlayer) tickData[0];
 		ExtendedPlayer props = ExtendedPlayer.get(player);
 
 		World worldObj = player.worldObj;
 
 		// Process tick
-		if (!worldObj.isRemote)
-		{
-			//WaterStats waterStats = props.getWaterStats();
+		if (!worldObj.isRemote) {
+			// WaterStats waterStats = props.getWaterStats();
 			props.onUpdate();
 		}
 	}
 
 	@Override
-	public EnumSet< TickType > ticks()
-	{
+	public EnumSet<TickType> ticks() {
 		return EnumSet.of(TickType.PLAYER);
 	}
 
 	@Override
-	public String getLabel()
-	{
+	public String getLabel() {
 		return null;
 	}
-
-	public void tickStart2(EnumSet<TickType> type, Object... tickData) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void tickEnd2(EnumSet<TickType> type, Object... tickData) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
