@@ -1,6 +1,7 @@
 package soarvivor.lib;
 
 import java.util.EnumSet;
+import java.util.logging.Level;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,14 +13,18 @@ import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-// TutKeyHandler class
+/**
+ * Key handler for Soarvivor mod
+ * 
+ * @author TehStoneMan
+ */
 @SideOnly(Side.CLIENT)
-public class TutKeyHandler extends KeyHandler
+public class SvrKeyHandler extends KeyHandler
 {
-	/** Not really important. I use it to store/find keys in the config file */
-	public static final String	label	= "Tutorial Key";
+	/** Label for use in the config file */
+	public static final String	label	= "Soarvivor Key";
 
-	public TutKeyHandler(KeyBinding[] keyBindings, boolean[] repeatings)
+	public SvrKeyHandler(KeyBinding[] keyBindings, boolean[] repeatings)
 	{
 		super(keyBindings, repeatings);
 	}
@@ -31,19 +36,20 @@ public class TutKeyHandler extends KeyHandler
 	}
 
 	@Override
-	public void keyDown(EnumSet< TickType > types, KeyBinding kb, boolean tickEnd, boolean isRepeat)
+	public void keyDown(EnumSet<TickType> types, KeyBinding kb,
+			boolean tickEnd, boolean isRepeat)
 	{
-		if (tickEnd && RegisterKeyBindings.tutKeyMap.containsKey(kb.keyCode))
+		if (tickEnd && RegisterKeyBindings.svrKeyMap.containsKey(kb.keyCode))
 		{
 			EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
 
-			switch (RegisterKeyBindings.tutKeyMap.get(kb.keyCode))
+			switch (RegisterKeyBindings.svrKeyMap.get(kb.keyCode))
 			{
 				case RegisterKeyBindings.CUSTOM_INV:
 					// If the custom inventory screen is open, close it
 					if (player.openContainer != null
-							&& player.openContainer instanceof ContainerLimitedPlayer)
-						player.closeScreen();
+							&& player.openContainer instanceof ContainerLimitedPlayer) player
+							.closeScreen();
 
 					// Otherwise, open the screen. Here you will need to send a
 					// packet to the server telling it
@@ -53,7 +59,8 @@ public class TutKeyHandler extends KeyHandler
 					{
 						// Send a packet to the server using a method we'll
 						// create in the next step
-						PacketHandler.sendOpenGuiPacket(soarvivor.soarvivor.GUI_CUSTOM_INV);
+						PacketHandler
+								.sendOpenGuiPacket(soarvivor.soarvivor.GUI_LIMITED_INV);
 						// opening the gui server side automatically opens the
 						// client side as well,
 						// so we don't need to do anything else
@@ -64,13 +71,13 @@ public class TutKeyHandler extends KeyHandler
 	}
 
 	@Override
-	public void keyUp(EnumSet< TickType > types, KeyBinding kb, boolean tickEnd)
+	public void keyUp(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd)
 	{
 		// Don't need to do anything here!
 	}
 
 	@Override
-	public EnumSet< TickType > ticks()
+	public EnumSet<TickType> ticks()
 	{
 		// We're only interested in player ticks, as that's when the keyboard
 		// will fire

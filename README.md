@@ -25,6 +25,5 @@ Features include:
 To Do:
 ======
 
-* Activity decreases hydration
 * Limit the player's inventory to one line + the hot bar
 * Limit the stack size in the player's inventory

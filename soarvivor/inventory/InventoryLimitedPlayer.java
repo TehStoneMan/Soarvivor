@@ -2,9 +2,11 @@ package soarvivor.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import soarvivor.lib.config.Ids;
 import soarvivor.lib.config.Settings;
 
 public class InventoryLimitedPlayer implements IInventory
@@ -16,12 +18,13 @@ public class InventoryLimitedPlayer implements IInventory
 	 * In case your inventory name is too generic, define a name to store the
 	 * NBT tag in as well
 	 */
-	private final String	tagName		= "CustomInvTag";
+	private final String	tagName		= "LtdInvTag";
 
 	/** Define the inventory size here for easy reference */
 	// This is also the place to define which slot is which if you have
 	// different types, for example SLOT_SHIELD = 0, SLOT_AMULET = 1;
-	public static final int	INV_SIZE	= 1;
+	public static final int	INV_SIZE	= 3;
+	public static final int	SLOT_QUIVER	= 0;
 
 	/**
 	 * Inventory's size must be same as number of slots you add to the Container
@@ -56,10 +59,7 @@ public class InventoryLimitedPlayer implements IInventory
 			{
 				stack = stack.splitStack(amount);
 				this.onInventoryChanged();
-			} else
-			{
-				setInventorySlotContents(slot, null);
-			}
+			} else setInventorySlotContents(slot, null);
 		}
 		return stack;
 	}
@@ -78,9 +78,7 @@ public class InventoryLimitedPlayer implements IInventory
 		this.inventory[slot] = itemstack;
 
 		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit())
-		{
 			itemstack.stackSize = this.getInventoryStackLimit();
-		}
 
 		this.onInventoryChanged();
 	}
@@ -127,16 +125,12 @@ public class InventoryLimitedPlayer implements IInventory
 	public void closeChest()
 	{}
 
-	/**
-	 * Checks for valid items when shift-clicking inventory
-	 */
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
-		// If you have different kinds of slots, then check them here:
-		// if (slot == SLOT_SHIELD && itemstack.getItem() instanceof ItemShield)
-		// return true;
-		return true;
+		if (slot == SLOT_QUIVER && itemstack.itemID == Ids.quiver) return true;
+		else if (slot != SLOT_QUIVER && itemstack.itemID == Item.arrow.itemID) return true;
+		return false;
 	}
 
 	public void writeToNBT(NBTTagCompound tagcompound)
@@ -148,7 +142,7 @@ public class InventoryLimitedPlayer implements IInventory
 			if (getStackInSlot(i) != null)
 			{
 				NBTTagCompound item = new NBTTagCompound();
-				item.setByte("Slot", (byte)i);
+				item.setByte("Slot", (byte) i);
 				getStackInSlot(i).writeToNBT(item);
 				items.appendTag(item);
 			}
@@ -165,7 +159,7 @@ public class InventoryLimitedPlayer implements IInventory
 
 		for (int i = 0; i < items.tagCount(); ++i)
 		{
-			NBTTagCompound item = (NBTTagCompound)items.tagAt(i);
+			NBTTagCompound item = (NBTTagCompound) items.tagAt(i);
 			byte slot = item.getByte("Slot");
 
 			if (slot >= 0 && slot < getSizeInventory())

@@ -15,7 +15,7 @@ public class RegisterKeyBindings
 	public static final int						CUSTOM_INV	= 0;
 
 	/** Key descriptions */
-	private static final String[]				desc		= { "Custom Inventory" };
+	private static final String[]				desc		= { "Limited Inventory" };
 
 	/** Default key values */
 	private static final int[]					keyValues	= { Keyboard.KEY_O };
@@ -24,7 +24,7 @@ public class RegisterKeyBindings
 	 * Maps Keyboard values to Tutorial KeyBinding index values (e.g. CUSTOM_INV
 	 * returns KEY_O)
 	 */
-	public static final Map< Integer, Integer >	tutKeyMap	= new HashMap< Integer, Integer >();
+	public static final Map< Integer, Integer >	svrKeyMap	= new HashMap< Integer, Integer >();
 
 	/**
 	 * This will initialise all key bindings; I like to pass in a Configuration
@@ -41,9 +41,9 @@ public class RegisterKeyBindings
 		{
 			key[i] = new KeyBinding(desc[i], keyValues[i]);
 			repeat[i] = false;
-			tutKeyMap.put(key[i].keyCode, i);
+			svrKeyMap.put(key[i].keyCode, i);
 		}
 
-		KeyBindingRegistry.registerKeyBinding(new TutKeyHandler(key, repeat));
+		KeyBindingRegistry.registerKeyBinding(new SvrKeyHandler(key, repeat));
 	}
 }

@@ -45,7 +45,7 @@ public class Quiver extends Item
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		if (!world.isRemote)
-			player.openGui(soarvivor.instance, soarvivor.InventoryQuiverGuiIndex, world,
+			player.openGui(soarvivor.instance, soarvivor.GUI_QUIVER_INV, world,
 					(int)player.posX, (int)player.posY, (int)player.posZ);
 
 		return itemStack;

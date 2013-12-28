@@ -16,10 +16,6 @@
  * 
  * Limit player inventory space to hotbar and one row of inventory.
  * 
- * Make hydration bar respond to player activity and food/drink.
- * 
- * Make hydration bar respond to biome/heat sources.
- * 
  * ================
  */
 
@@ -34,6 +30,7 @@ import soarvivor.items.Items;
 import soarvivor.items.Recipies;
 import soarvivor.lib.LogHelper;
 import soarvivor.lib.ModInfo;
+import soarvivor.lib.RegisterKeyBindings;
 import soarvivor.lib.SvrEventHandler;
 import soarvivor.lib.config.ConfigHandler;
 import soarvivor.proxies.CommonProxy;
@@ -53,9 +50,12 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 // Setup mod info
 @Mod(modid = ModInfo.ID, name = ModInfo.NAME, version = ModInfo.VERSION)
 // Setup mod network channel
-@NetworkMod(channels = ModInfo.CHANNEL, clientSideRequired = true, serverSideRequired = true,
-		packetHandler = PacketHandler.class)
-// Main mod class
+@NetworkMod(channels = ModInfo.CHANNEL, clientSideRequired = true,
+		serverSideRequired = true, packetHandler = PacketHandler.class)
+/**
+ * 
+ * @author TehStoneMan
+ */
 public class soarvivor
 {
 	// Create an instance of this mod
@@ -68,14 +68,14 @@ public class soarvivor
 	public static CommonProxy	proxy;
 
 	// This is used to keep track of GUIs that we make
-	private static int			modGuiIndex				= 0;
+	private static int			modGuiIndex		= 0;
 
 	// Set our custom inventory Gui index to the next available Gui index
-	public static final int		InventoryQuiverGuiIndex	= modGuiIndex++;
+	public static final int		GUI_QUIVER_INV	= modGuiIndex++;
 
 	/** Custom GUI indices: */
-	public static final int		GUI_CUSTOM_INV			= modGuiIndex++;
-	
+	public static final int		GUI_LIMITED_INV	= modGuiIndex++;
+
 	// Perform pre-initialisation operations
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
@@ -123,11 +123,12 @@ public class soarvivor
 		NetworkRegistry.instance().registerGuiHandler(this, new CommonProxy());
 
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-			MinecraftForge.EVENT_BUS.register(new GuiHydrationBar(Minecraft.getMinecraft()));
+			MinecraftForge.EVENT_BUS.register(new GuiHydrationBar(Minecraft
+					.getMinecraft()));
 
 		// Register KeyHandler
-		// if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-		// RegisterKeyBindings.init();
+		if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+			RegisterKeyBindings.init();
 
 		// Register tick handler
 		proxy.registerServerTickHandler();

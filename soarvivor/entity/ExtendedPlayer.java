@@ -3,7 +3,6 @@ package soarvivor.entity;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -18,7 +17,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.classloading.FMLForgePlugin;
 import net.minecraftforge.common.IExtendedEntityProperties;
-import soarvivor.lib.LogHelper;
+import soarvivor.inventory.InventoryLimitedPlayer;
 import soarvivor.lib.ModInfo;
 import soarvivor.util.DebugInfo;
 import soarvivor.util.PacketHandler;
@@ -39,41 +38,40 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	 * Create a constant to store the unique name for this instance of
 	 * IExtendedEntityProperties
 	 */
-	public final static String	EXT_PROP_NAME			= "SRVRExtendedPlayer";
+	public final static String			EXT_PROP_NAME			= "SRVRExtendedPlayer";
 
 	// Store a reference to the entity to which the properties belong for easy
 	// access. It's final because we won't be changing which player it is
-	private final EntityPlayer	player;
+	private final EntityPlayer			player;
 
 	// Define the maximum hydration (WET) and ice levels.
-	public static final int		MAX_WET_LEVEL			= 20;
-	public static final int		MAX_ICE_LEVEL			= 20;
+	public static final int				MAX_WET_LEVEL			= 20;
+	public static final int				MAX_ICE_LEVEL			= 20;
 
 	// The player's water and ice levels.
-	private int					wetLevel				= ExtendedPlayer.MAX_WET_LEVEL;
-	private int					iceLevel				= 0;
+	private int							wetLevel				= ExtendedPlayer.MAX_WET_LEVEL;
+	private int							iceLevel				= 0;
 
 	// The player's water saturation.
-	private float				waterSaturationLevel	= 5.0F;
+	private float						waterSaturationLevel	= 5.0F;
 
 	// The player's water exhaustion.
-	private float				waterExhaustionLevel;
-	private float				prevFoodExhaustionLevel;
+	private float						waterExhaustionLevel;
+	private float						prevFoodExhaustionLevel;
 
 	// The player's water timer value.
-	private int					waterTimer, iceTimer;
-	private int					prevWetLevel			= wetLevel;
-	private int					prevIceLevel			= iceLevel;
+	private int							waterTimer, iceTimer;
+	private int							prevWetLevel			= wetLevel;
+	private int							prevIceLevel			= iceLevel;
 
 	// Timer for calculating environmental effects
-	private int					envTimer;
+	private int							envTimer;
 
 	/** The player's water stats. (See class WaterStats) */
 	// protected WaterStats waterStats = new WaterStats();
 
 	/** Custom inventory slots will be stored here - be sure to save to NBT! */
-	// public final InventoryLimitedPlayer inventory = new
-	// InventoryLimitedPlayer();
+	public final InventoryLimitedPlayer	inventory				= new InventoryLimitedPlayer();
 
 	/**
 	 * The default constructor takes no arguments, but I put in the Entity so I
