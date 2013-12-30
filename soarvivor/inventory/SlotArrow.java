@@ -1,22 +1,25 @@
-/**
- * 
- */
 package soarvivor.inventory;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import soarvivor.items.Quiver;
 import soarvivor.lib.config.Settings;
 
 /**
- * Custom inventory slot that can only hold a quiver
+ * Custom inventory slot that can only hold arrows
+ * Also conforms to limited stack size
  * 
  * @author TehStoneMan
  */
-public class SlotQuiver extends Slot
+public class SlotArrow extends Slot
 {
-	public SlotQuiver(IInventory inventory, int index, int xPos, int yPos)
+	public SlotArrow(IInventory inventory, int index, int xPos, int yPos)
 	{
 		super(inventory, index, xPos, yPos);
 	}
@@ -33,12 +36,12 @@ public class SlotQuiver extends Slot
 	public boolean isItemValid(ItemStack itemStack)
 	{
 		// Inventory slots should only accept arrows
-		return (itemStack.getItem() instanceof Quiver);
+		return (itemStack.getItem().itemID == Item.arrow.itemID);
 	}
 
 	public int getSlotStackLimit()
 	{
-		return 1;
+		return Settings.limitStackSize;
 	}
 
 //	@SideOnly(Side.CLIENT)

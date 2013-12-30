@@ -71,7 +71,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	// protected WaterStats waterStats = new WaterStats();
 
 	/** Custom inventory slots will be stored here - be sure to save to NBT! */
-	public final InventoryLimitedPlayer	inventory				= new InventoryLimitedPlayer();
+	public final InventoryLimitedPlayer	ltdInventory				= new InventoryLimitedPlayer();
 
 	/**
 	 * The default constructor takes no arguments, but I put in the Entity so I
@@ -131,7 +131,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		properties.setInteger("currentIce", this.getCurrentIce());
 
 		// Read custom inventory from NBT
-		// this.inventory.readFromNBT(properties);
+		this.ltdInventory.writeToNBT(properties);
 
 		/*
 		 * Now add our custom tag to the player's tag with a unique name (our
@@ -159,7 +159,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		this.iceLevel = properties.getInteger("currentIce");
 
 		// Write custom inventory to NBT
-		// this.inventory.writeToNBT(properties);
+		this.ltdInventory.readFromNBT(properties);
 
 		sync();
 	}

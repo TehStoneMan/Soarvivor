@@ -73,7 +73,8 @@ public class ContainerLimitedPlayer extends Container
 		// Add CUSTOM slots - we'll just add two for now, both of the same type.
 		// Make a new Slot class for each different item type you want to add
 		for (i = 0; i < 3; ++i)
-			this.addSlotToContainer(new Slot(inventoryCustom, i, 8 + i * 18, 84));
+			if (i == 0) this.addSlotToContainer(new SlotQuiver(inventoryCustom, i, 8 + i * 18, 84));
+			else this.addSlotToContainer(new SlotArrow(inventoryCustom, i, 8 + i * 18, 84));
 
 		// Add ARMOR slots; note you need to make a public version of SlotArmor
 		// just copy and paste the vanilla code into a new class and change what
@@ -85,12 +86,12 @@ public class ContainerLimitedPlayer extends Container
 		// Add vanilla PLAYER INVENTORY - Limited to one row
 		i = 2;
 		for (j = 0; j < 9; ++j)
-			this.addSlotToContainer(new Slot(inventoryPlayer, j + (i + 1) * 9, 8 + j * 18,
+			this.addSlotToContainer(new SlotLimited(inventoryPlayer, j + (i + 1) * 9, 8 + j * 18,
 					84 + i * 18));
 
 		// Add ACTION BAR - just copied/pasted from vanilla classes
 		for (i = 0; i < 9; ++i)
-			this.addSlotToContainer(new Slot(inventoryPlayer, i, 8 + i * 18, 142));
+			this.addSlotToContainer(new SlotLimited(inventoryPlayer, i, 8 + i * 18, 142));
 
 		this.onCraftMatrixChanged(this.craftMatrix);
 	}
@@ -116,7 +117,6 @@ public class ContainerLimitedPlayer extends Container
 
 	public ItemStack transferStackInSlot(EntityPlayer player, int fromSlot)
 	{
-		LogHelper.log(Level.INFO, "Shift click in slot " + fromSlot);
 		ItemStack stackTarget = null;
 		Slot slot = (Slot) this.inventorySlots.get(fromSlot);
 
@@ -150,7 +150,6 @@ public class ContainerLimitedPlayer extends Container
 			} else if (stackSource.getItem() instanceof Quiver
 					&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack())
 			{
-				LogHelper.log(Level.INFO, "Move quiver to slot");
 				/*
 				 * Handle our custom quiver item
 				 */
@@ -198,5 +197,98 @@ public class ContainerLimitedPlayer extends Container
 		}
 
 		return stackTarget;
+	}
+
+	@Override
+	protected boolean mergeItemStack(ItemStack stackSource, int slotStart, int slotEnd,
+			boolean reverse)
+	{
+		// Setup success flag
+		boolean success = false;
+
+		// Setup main counter
+		int count = slotStart;
+		if (reverse) count = slotEnd - 1;
+
+		Slot slot;
+		ItemStack itemstack;
+
+		// Is the item stackable?
+		if (stackSource.isStackable())
+		{
+			while (stackSource.stackSize > 0
+					&& (!reverse && count < slotEnd || reverse && count >= slotStart))
+			{
+				slot = (Slot)inventorySlots.get(count);
+				itemstack = slot.getStack();
+
+				if (itemstack != null
+						&& itemstack.itemID == stackSource.itemID
+						&& (!stackSource.getHasSubtypes() || stackSource.getItemDamage() == itemstack
+								.getItemDamage())
+						&& ItemStack.areItemStackTagsEqual(stackSource, itemstack))
+				{
+					int stackSize = itemstack.stackSize + stackSource.stackSize;
+
+					// Get the maximum amount that this slot can hold
+					int maxStackSize = Math.min(slot.getSlotStackLimit(),
+							stackSource.getMaxStackSize());
+
+					if (stackSize <= maxStackSize)
+					{
+						stackSource.stackSize = 0;
+						itemstack.stackSize = stackSize;
+						slot.onSlotChanged();
+						success = true;
+					} else if (itemstack.stackSize < maxStackSize)
+					{
+						stackSource.stackSize -= maxStackSize - itemstack.stackSize;
+						itemstack.stackSize = maxStackSize;
+						slot.onSlotChanged();
+						success = true;
+					}
+				}
+
+				if (reverse)
+					--count;
+				else ++count;
+			}
+		}
+
+		if (stackSource.stackSize > 0)
+		{
+			if (reverse)
+				count = slotEnd - 1;
+			else count = slotStart;
+
+			// Loop through slots, transferring as many items as possible
+			while (!reverse && count < slotEnd || reverse && count >= slotStart)
+			{
+				slot = (Slot)inventorySlots.get(count);
+				itemstack = slot.getStack();
+
+				// Check for empty slot
+				if (itemstack == null)
+				{
+					int stackSize = stackSource.stackSize;
+					int maxStackSize = Math.min(slot.getSlotStackLimit(),
+							stackSource.getMaxStackSize());
+
+					// Transfer as many items as this stack can hold
+					slot.putStack(stackSource.copy());
+					slot.onSlotChanged();
+					stackSource.stackSize = stackSize - maxStackSize;
+
+					success = true;
+					break;
+				}
+
+				if (reverse)
+					--count;
+				else ++count;
+			}
+		}
+
+		return success;
 	}
 }

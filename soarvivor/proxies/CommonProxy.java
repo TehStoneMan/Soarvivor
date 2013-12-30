@@ -41,7 +41,7 @@ public class CommonProxy implements IGuiHandler
 
 		if (guiId == soarvivor.soarvivor.GUI_LIMITED_INV)
 			return new ContainerLimitedPlayer(player, player.inventory,
-					ExtendedPlayer.get(player).inventory);
+					ExtendedPlayer.get(player).ltdInventory);
 		return null;
 	}
 
@@ -57,7 +57,7 @@ public class CommonProxy implements IGuiHandler
 
 		if (guiId == soarvivor.soarvivor.GUI_LIMITED_INV)
 			return new GuiLimitedInventory(player, player.inventory,
-					ExtendedPlayer.get(player).inventory);
+					ExtendedPlayer.get(player).ltdInventory);
 		return null;
 	}
 

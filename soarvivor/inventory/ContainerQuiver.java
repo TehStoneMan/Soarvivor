@@ -39,7 +39,7 @@ public class ContainerQuiver extends Container
 		int i;
 
 		for (i = 0; i < InventoryQuiver.INV_SIZE; ++i)
-			addSlotToContainer(new SlotQuiver(inventory, i, 71 + (18 * i), 35));
+			addSlotToContainer(new SlotArrow(inventory, i, 71 + (18 * i), 35));
 
 		/**
 		 * If you want, you can add ARMOR SLOTS here as well, but you need to
