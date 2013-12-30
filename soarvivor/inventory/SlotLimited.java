@@ -8,9 +8,16 @@ import soarvivor.items.Quiver;
 // Custom Slot:
 public class SlotLimited extends Slot
 {
-	public SlotLimited(IInventory inventory, int par2, int par3, int par4)
+	/**
+	 * 
+	 * @param inventory
+	 * @param index
+	 * @param xPos
+	 * @param yPos
+	 */
+	public SlotLimited(IInventory inventory, int index, int xPos, int yPos)
 	{
-		super(inventory, par2, par3, par4);
+		super(inventory, index, xPos, yPos);
 	}
 
 	/**
