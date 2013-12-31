@@ -1,10 +1,7 @@
 package soarvivor.inventory;
 
-import java.util.logging.Level;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
@@ -14,14 +11,13 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import soarvivor.items.Quiver;
-import soarvivor.lib.LogHelper;
 
 /**
  * 
  * @author TehStoneMan
  * 
  */
-public class ContainerLimitedPlayer extends Container
+public class ContainerLimitedPlayer extends LimitedContainer
 {
 	/**
 	 * Avoid magic numbers! This will greatly reduce the chance of you making
@@ -197,98 +193,5 @@ public class ContainerLimitedPlayer extends Container
 		}
 
 		return stackTarget;
-	}
-
-	@Override
-	protected boolean mergeItemStack(ItemStack stackSource, int slotStart, int slotEnd,
-			boolean reverse)
-	{
-		// Setup success flag
-		boolean success = false;
-
-		// Setup main counter
-		int count = slotStart;
-		if (reverse) count = slotEnd - 1;
-
-		Slot slot;
-		ItemStack itemstack;
-
-		// Is the item stackable?
-		if (stackSource.isStackable())
-		{
-			while (stackSource.stackSize > 0
-					&& (!reverse && count < slotEnd || reverse && count >= slotStart))
-			{
-				slot = (Slot)inventorySlots.get(count);
-				itemstack = slot.getStack();
-
-				if (itemstack != null
-						&& itemstack.itemID == stackSource.itemID
-						&& (!stackSource.getHasSubtypes() || stackSource.getItemDamage() == itemstack
-								.getItemDamage())
-						&& ItemStack.areItemStackTagsEqual(stackSource, itemstack))
-				{
-					int stackSize = itemstack.stackSize + stackSource.stackSize;
-
-					// Get the maximum amount that this slot can hold
-					int maxStackSize = Math.min(slot.getSlotStackLimit(),
-							stackSource.getMaxStackSize());
-
-					if (stackSize <= maxStackSize)
-					{
-						stackSource.stackSize = 0;
-						itemstack.stackSize = stackSize;
-						slot.onSlotChanged();
-						success = true;
-					} else if (itemstack.stackSize < maxStackSize)
-					{
-						stackSource.stackSize -= maxStackSize - itemstack.stackSize;
-						itemstack.stackSize = maxStackSize;
-						slot.onSlotChanged();
-						success = true;
-					}
-				}
-
-				if (reverse)
-					--count;
-				else ++count;
-			}
-		}
-
-		if (stackSource.stackSize > 0)
-		{
-			if (reverse)
-				count = slotEnd - 1;
-			else count = slotStart;
-
-			// Loop through slots, transferring as many items as possible
-			while (!reverse && count < slotEnd || reverse && count >= slotStart)
-			{
-				slot = (Slot)inventorySlots.get(count);
-				itemstack = slot.getStack();
-
-				// Check for empty slot
-				if (itemstack == null)
-				{
-					int stackSize = stackSource.stackSize;
-					int maxStackSize = Math.min(slot.getSlotStackLimit(),
-							stackSource.getMaxStackSize());
-
-					// Transfer as many items as this stack can hold
-					slot.putStack(stackSource.copy());
-					slot.onSlotChanged();
-					stackSource.stackSize = stackSize - maxStackSize;
-
-					success = true;
-					break;
-				}
-
-				if (reverse)
-					--count;
-				else ++count;
-			}
-		}
-
-		return success;
 	}
 }
