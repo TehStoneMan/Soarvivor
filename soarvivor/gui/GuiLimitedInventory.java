@@ -8,6 +8,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.stats.AchievementList;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
@@ -48,6 +49,8 @@ public class GuiLimitedInventory extends GuiContainer
 	{
 		super(new ContainerLimitedPlayer(player, inventoryPlayer, inventoryLimited));
 		this.inventory = inventoryLimited;
+		player.addStat(AchievementList.openInventory, 1);
+
 		// if you need the player for something later on, store it in a local
 		// variable here as well
 	}

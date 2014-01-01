@@ -101,6 +101,23 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				.findMatchingRecipe(this.craftMatrix, this.thePlayer.worldObj));
 	}
 
+    public void onContainerClosed(EntityPlayer par1EntityPlayer)
+    {
+        super.onContainerClosed(par1EntityPlayer);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            ItemStack itemstack = this.craftMatrix.getStackInSlotOnClosing(i);
+
+            if (itemstack != null)
+            {
+                par1EntityPlayer.dropPlayerItem(itemstack);
+            }
+        }
+
+        this.craftResult.setInventorySlotContents(0, (ItemStack)null);
+    }
+
 	/**
 	 * This should always return true, since custom inventory can be accessed
 	 * from anywhere

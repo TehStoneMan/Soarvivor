@@ -18,7 +18,7 @@ public class RegisterKeyBindings
 	private static final String[]				desc		= { "Limited Inventory" };
 
 	/** Default key values */
-	private static final int[]					keyValues	= { Keyboard.KEY_O };
+	private static final int[]					keyValues	= { Keyboard.KEY_I };
 
 	/**
 	 * Maps Keyboard values to Tutorial KeyBinding index values (e.g. CUSTOM_INV
