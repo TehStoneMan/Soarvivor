@@ -3,11 +3,13 @@ package soarvivor.entity;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.lang.reflect.Field;
+import java.util.logging.Level;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.DamageSource;
@@ -18,7 +20,9 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.classloading.FMLForgePlugin;
 import net.minecraftforge.common.IExtendedEntityProperties;
 import soarvivor.inventory.InventoryLimitedPlayer;
+import soarvivor.lib.LogHelper;
 import soarvivor.lib.ModInfo;
+import soarvivor.lib.config.Settings;
 import soarvivor.util.DebugInfo;
 import soarvivor.util.PacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -71,7 +75,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	// protected WaterStats waterStats = new WaterStats();
 
 	/** Custom inventory slots will be stored here - be sure to save to NBT! */
-	public final InventoryLimitedPlayer	ltdInventory				= new InventoryLimitedPlayer();
+	public final InventoryLimitedPlayer	ltdInventory			= new InventoryLimitedPlayer();
 
 	/**
 	 * The default constructor takes no arguments, but I put in the Entity so I
@@ -102,8 +106,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	 */
 	public static final void register(EntityPlayer player)
 	{
-		player.registerExtendedProperties(ExtendedPlayer.EXT_PROP_NAME,
-				new ExtendedPlayer(player));
+		player.registerExtendedProperties(ExtendedPlayer.EXT_PROP_NAME, new ExtendedPlayer(player));
 	}
 
 	/**
@@ -151,8 +154,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	{
 		// Here we fetch the unique tag compound we set for this class of
 		// Extended Properties
-		NBTTagCompound properties = (NBTTagCompound) compound
-				.getTag(EXT_PROP_NAME);
+		NBTTagCompound properties = (NBTTagCompound) compound.getTag(EXT_PROP_NAME);
 
 		// Get our data from the custom tag compound
 		this.wetLevel = properties.getInteger("currentHydration");
@@ -198,8 +200,8 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 				ex.printStackTrace();
 			}
 
-			Packet250CustomPayload packet = new Packet250CustomPayload(
-					ModInfo.CHANNEL, bos.toByteArray());
+			Packet250CustomPayload packet = new Packet250CustomPayload(ModInfo.CHANNEL,
+					bos.toByteArray());
 
 			EntityPlayerMP player1 = (EntityPlayerMP) player;
 			PacketDispatcher.sendPacketToPlayer(packet, (Player) player1);
@@ -255,13 +257,11 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 
 	public void addWaterStats(int wet, int ice, float saturation)
 	{
-		wetLevel = Math.max(
-				Math.min(wet + wetLevel, ExtendedPlayer.MAX_WET_LEVEL), 0);
-		iceLevel = Math.max(
-				Math.min(ice + iceLevel, ExtendedPlayer.MAX_ICE_LEVEL), 0);
+		wetLevel = Math.max(Math.min(wet + wetLevel, ExtendedPlayer.MAX_WET_LEVEL), 0);
+		iceLevel = Math.max(Math.min(ice + iceLevel, ExtendedPlayer.MAX_ICE_LEVEL), 0);
 
-		waterSaturationLevel = Math.min(waterSaturationLevel + (float) wet
-				* saturation * 2.0F, (float) wetLevel);
+		waterSaturationLevel = Math.min(waterSaturationLevel + (float) wet * saturation * 2.0F,
+				(float) wetLevel);
 
 		// update debug info
 		DebugInfo.wetLevel = wetLevel;
@@ -280,8 +280,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		{
 			if (!this.player.worldObj.isRemote)
 			{
-				this.waterExhaustionLevel = Math.min(this.waterExhaustionLevel
-						+ amount, 40.0F);
+				this.waterExhaustionLevel = Math.min(this.waterExhaustionLevel + amount, 40.0F);
 
 				// Update debug info
 				DebugInfo.waterExhaustionLevel = this.waterExhaustionLevel;
@@ -342,8 +341,8 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		if (++envTimer >= 100)
 		{
 			// Get world and biome info
-			BiomeGenBase biome = world.getBiomeGenForCoords(
-					(int) player.lastTickPosX, (int) player.lastTickPosZ);
+			BiomeGenBase biome = world.getBiomeGenForCoords((int) player.lastTickPosX,
+					(int) player.lastTickPosZ);
 			float temperature = biome.getFloatTemperature();
 
 			// Scan surounding blocks for heat sources
@@ -364,20 +363,17 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 						if (foundBlock == Block.fire.blockID)
 						{
 							heat += 2f * foundDistance;
-							if (foundDistance < distance)
-								distance = foundDistance;
+							if (foundDistance < distance) distance = foundDistance;
 						}
 						if (foundBlock == Block.lavaMoving.blockID)
 						{
 							heat += foundDistance;
-							if (foundDistance < distance)
-								distance = foundDistance;
+							if (foundDistance < distance) distance = foundDistance;
 						}
 						if (foundBlock == Block.lavaStill.blockID)
 						{
 							heat += foundDistance;
-							if (foundDistance < distance)
-								distance = foundDistance;
+							if (foundDistance < distance) distance = foundDistance;
 						}
 					}
 				}
@@ -422,8 +418,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 
 			if (this.waterSaturationLevel > 0.0F)
 			{
-				this.waterSaturationLevel = Math.max(
-						this.waterSaturationLevel - 0.5F, 0.0F);
+				this.waterSaturationLevel = Math.max(this.waterSaturationLevel - 0.5F, 0.0F);
 			} else if (difficulty > 0)
 			{
 				this.wetLevel = Math.max(this.wetLevel - 1, 0);
@@ -434,8 +429,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 
 		// Check game rules to see if auto healing is enabled
 		if (world.getGameRules().getGameRuleBooleanValue("naturalRegeneration")
-				&& this.wetLevel >= 18 && player.shouldHeal()
-				&& this.iceLevel <= 2)
+				&& this.wetLevel >= 18 && player.shouldHeal() && this.iceLevel <= 2)
 		{
 			// Test to heal player
 			++this.waterTimer;
@@ -453,13 +447,11 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 
 			if (this.waterTimer >= 80)
 			{
-				if (player.getHealth() > 10.0F || difficulty >= 3
-						|| player.getHealth() > 1.0F && difficulty >= 2)
+				if (player.getHealth() > 10.0F || difficulty >= 3 || player.getHealth() > 1.0F
+						&& difficulty >= 2)
 				{
-					if (this.wetLevel <= 0)
-						player.attackEntityFrom(DamageSource.starve, 0.5F);
-					if (this.iceLevel >= 18)
-						player.attackEntityFrom(DamageSource.starve, 2.0F);
+					if (this.wetLevel <= 0) player.attackEntityFrom(DamageSource.starve, 0.5F);
+					if (this.iceLevel >= 18) player.attackEntityFrom(DamageSource.starve, 2.0F);
 				}
 
 				this.waterTimer = 0;
@@ -481,5 +473,181 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	public float getDistance(double dx, double dy, double dz)
 	{
 		return MathHelper.sqrt_double(dx * dx + dy * dy + dz * dz);
+	}
+
+	/**
+	 * Adds the item stack to the inventory, returns false if it is impossible.
+	 */
+	public boolean addItemStackToInventory(ItemStack itemstack)
+	{
+		// Check if player is in creative mode, and do vanilla processing if so
+		if (this.player.capabilities.isCreativeMode)
+			return player.inventory.addItemStackToInventory(itemstack);
+
+		LogHelper.log(Level.INFO, "addItemStackToInventory");
+		if (itemstack == null) return false;
+		else if (itemstack.stackSize == 0) return false;
+		else
+		{
+			// try
+			// {
+			int i;
+
+			if (itemstack.isItemDamaged())
+			{
+				i = this.getFirstEmptyStack();
+
+				if (i >= 0)
+				{
+					player.inventory.mainInventory[i] = ItemStack.copyItemStack(itemstack);
+					player.inventory.mainInventory[i].animationsToGo = 5;
+					itemstack.stackSize = 0;
+					return true;
+				} else return false;
+			} else
+			{
+				do
+				{
+					i = itemstack.stackSize;
+					itemstack.stackSize = this.storePartialItemStack(itemstack);
+				} while (itemstack.stackSize > 0 && itemstack.stackSize < i);
+
+				return itemstack.stackSize < i;
+			}
+			// } catch (Throwable throwable)
+			// {
+			// CrashReport crashreport = CrashReport.makeCrashReport(throwable,
+			// "Adding item to inventory");
+			// CrashReportCategory crashreportcategory = crashreport
+			// .makeCategory("Item being added");
+			// crashreportcategory.addCrashSection("Item ID",
+			// Integer.valueOf(itemstack.itemID));
+			// crashreportcategory.addCrashSection("Item data",
+			// Integer.valueOf(itemstack.getItemDamage()));
+			// crashreportcategory.addCrashSectionCallable("Item name", new
+			// CallableItemName(this,
+			// itemstack));
+			// throw new ReportedException(crashreport);
+			// }
+		}
+	}
+
+	/**
+	 * This function stores as many items of an ItemStack as possible in a
+	 * matching slot and returns the quantity of
+	 * left over items.
+	 */
+	private int storePartialItemStack(ItemStack itemstack)
+	{
+		int itemID = itemstack.itemID;
+		int stacksize = itemstack.stackSize;
+		int k;
+
+		if (itemstack.getMaxStackSize() == 1)
+		{
+			k = this.getFirstEmptyStack();
+
+			if (k < 0) return stacksize;
+			else
+			{
+				if (player.inventory.mainInventory[k] == null)
+					player.inventory.mainInventory[k] = ItemStack.copyItemStack(itemstack);
+
+				return 0;
+			}
+		} else
+		{
+			k = this.storeItemStack(itemstack);
+
+			if (k < 0)
+			{
+				k = this.getFirstEmptyStack();
+			}
+
+			if (k < 0)
+			{
+				return stacksize;
+			} else
+			{
+				if (player.inventory.mainInventory[k] == null)
+				{
+					player.inventory.mainInventory[k] = new ItemStack(itemID, 0,
+							itemstack.getItemDamage());
+
+					if (itemstack.hasTagCompound())
+					{
+						player.inventory.mainInventory[k].setTagCompound((NBTTagCompound) itemstack
+								.getTagCompound().copy());
+					}
+				}
+
+				int l = stacksize;
+
+				if (stacksize > player.inventory.mainInventory[k].getMaxStackSize()
+						- player.inventory.mainInventory[k].stackSize)
+				{
+					l = player.inventory.mainInventory[k].getMaxStackSize()
+							- player.inventory.mainInventory[k].stackSize;
+				}
+
+				if (l > player.inventory.getInventoryStackLimit()
+						- player.inventory.mainInventory[k].stackSize)
+				{
+					l = player.inventory.getInventoryStackLimit()
+							- player.inventory.mainInventory[k].stackSize;
+				}
+
+				if (l == 0)
+				{
+					return stacksize;
+				} else
+				{
+					stacksize -= l;
+					player.inventory.mainInventory[k].stackSize += l;
+					player.inventory.mainInventory[k].animationsToGo = 5;
+					return stacksize;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the first item stack that is empty.
+	 */
+	public int getFirstEmptyStack()
+	{
+		for (int i = 0; i < 9; ++i)
+			if (player.inventory.mainInventory[i] == null) return i;
+
+		int length = player.inventory.getSizeInventory();
+
+		for (int i = length - 8; i < length; ++i)
+			if (player.inventory.mainInventory[i] == null) return i;
+
+		return -1;
+	}
+
+	/**
+	 * stores an itemstack in the users inventory
+	 */
+	private int storeItemStack(ItemStack itemstack)
+	{
+		for (int i = 0; i < player.inventory.mainInventory.length; ++i)
+		{
+			if (i < 9 || i >= player.inventory.getSizeInventory() - 8)
+			{
+				ItemStack target = player.inventory.mainInventory[i];
+				if (target != null
+						&& target.itemID == itemstack.itemID
+						&& target.isStackable()
+						&& target.stackSize < target.getMaxStackSize()
+						&& target.stackSize < Settings.limitStackSize
+						&& (target.getHasSubtypes() || target.getItemDamage() == itemstack
+								.getItemDamage())
+						&& ItemStack.areItemStackTagsEqual(target, itemstack)) return i;
+			}
+		}
+
+		return -1;
 	}
 }
