@@ -18,6 +18,10 @@ import soarvivor.inventory.ContainerLimitedPlayer;
 import soarvivor.inventory.InventoryLimitedPlayer;
 import soarvivor.lib.ModInfo;
 
+/**
+ * 
+ * @author TehStoneMan
+ */
 public class GuiLimitedInventory extends GuiContainer
 {
 	/**
@@ -55,19 +59,11 @@ public class GuiLimitedInventory extends GuiContainer
 		// variable here as well
 	}
 
-	/**
-	 * Draws the screen and all the components in it.
-	 */
-	public void drawScreen(int par1, int par2, float par3)
+	public void drawScreen(int xSize, int ySize, float par3)
 	{
-		super.drawScreen(par1, par2, par3);
-		this.xSize_lo = (float) par1;
-		this.ySize_lo = (float) par2;
-	}
-
-	protected void drawGuiContainerForegroundLayer(int par1, int par2)
-	{
-		this.fontRenderer.drawString(I18n.getString("container.crafting"), 86, 16, 4210752);
+		super.drawScreen(xSize, ySize, par3);
+		this.xSize_lo = (float) xSize;
+		this.ySize_lo = (float) ySize;
 	}
 
 	/**
@@ -78,11 +74,32 @@ public class GuiLimitedInventory extends GuiContainer
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.mc.getTextureManager().bindTexture(iconLocation);
-		int k = this.guiLeft;
-		int l = this.guiTop;
-		this.drawTexturedModalRect(k, l, 0, 0, this.xSize, this.ySize);
-		drawPlayerModel(k + 51, l + 75, 30, (float) (k + 51) - this.xSize_lo, (float) (l + 75 - 50)
-				- this.ySize_lo, this.mc.thePlayer);
+		int xPos = this.guiLeft;
+		int yPos = this.guiTop;
+		this.drawTexturedModalRect(xPos, yPos, 0, 0, this.xSize, this.ySize);
+
+		if (inventory.getStackInSlot(0) == null)
+		{
+			// x = 8, y = 84
+			this.drawTexturedModalRect(xPos + 7, yPos + 83, 162, 234, 18, 18);
+			this.drawTexturedModalRect(xPos + 25, yPos + 83, 144, 234, 18, 18);
+			this.drawTexturedModalRect(xPos + 43, yPos + 83, 144, 234, 18, 18);
+		} else
+		{
+			// x = 8, y = 84
+			if (inventory.getStackInSlot(1) == null)
+				this.drawTexturedModalRect(xPos + 25, yPos + 83, 180, 234, 18, 18);
+			if (inventory.getStackInSlot(2) == null)
+				this.drawTexturedModalRect(xPos + 43, yPos + 83, 180, 234, 18, 18);
+		}
+
+		drawPlayerModel(xPos + 51, yPos + 75, 30, (float) (xPos + 51) - this.xSize_lo,
+				(float) (yPos + 75 - 50) - this.ySize_lo, this.mc.thePlayer);
+	}
+
+	protected void drawGuiContainerForegroundLayer(int par1, int par2)
+	{
+		this.fontRenderer.drawString(I18n.getString("container.crafting"), 86, 16, 4210752);
 	}
 
 	/**

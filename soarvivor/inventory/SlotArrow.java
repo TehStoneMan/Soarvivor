@@ -19,6 +19,8 @@ import soarvivor.lib.config.Settings;
  */
 public class SlotArrow extends Slot
 {
+	public boolean enabled = true;
+	
 	public SlotArrow(IInventory inventory, int index, int xPos, int yPos)
 	{
 		super(inventory, index, xPos, yPos);
@@ -36,7 +38,7 @@ public class SlotArrow extends Slot
 	public boolean isItemValid(ItemStack itemStack)
 	{
 		// Inventory slots should only accept arrows
-		return (itemStack.getItem().itemID == Item.arrow.itemID);
+		return (enabled && itemStack.getItem().itemID == Item.arrow.itemID);
 	}
 
 	public int getSlotStackLimit()
@@ -44,9 +46,4 @@ public class SlotArrow extends Slot
 		return Settings.limitStackSize;
 	}
 
-//	@SideOnly(Side.CLIENT)
-//	public Icon getBackgroundIconIndex()
-//	{
-//		return ItemArmor.func_94602_b(this.armorType);
-//	}
 }

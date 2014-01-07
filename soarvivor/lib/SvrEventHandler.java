@@ -85,12 +85,16 @@ public class SvrEventHandler
 			int i = 0;
 			while (!hasAmmo && i < player.inventory.getSizeInventory())
 			{
-				if (player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
+				if (player.inventory.getStackInSlot(i) != null
+						&& player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
 				{
-					quiverSlot = i;
-					ItemStack test = player.inventory.getStackInSlot(quiverSlot);
-					InventoryQuiver inv = new InventoryQuiver(test);
-					hasAmmo = inv.hasItem(Item.arrow.itemID);
+					ItemStack quiver = player.inventory.getStackInSlot(i);
+					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+					if (invQuiver.hasItem(Item.arrow.itemID))
+					{
+						quiverSlot = i;
+						hasAmmo = true;
+					}
 				}
 				++i;
 			}
@@ -106,6 +110,8 @@ public class SvrEventHandler
 	@ForgeSubscribe
 	public void onArrowLooseEvent(ArrowLooseEvent event)
 	{
+		this.rand = new Random();
+
 		// Variables from event
 		ItemStack bow = event.bow;
 		EntityPlayer player = event.entityPlayer;
@@ -132,12 +138,16 @@ public class SvrEventHandler
 			int i = 0;
 			while (!hasAmmo && i < player.inventory.getSizeInventory())
 			{
-				if (player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
+				if (player.inventory.getStackInSlot(i) != null
+						&& player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
 				{
-					quiverSlot = i;
-					ItemStack test = player.inventory.getStackInSlot(quiverSlot);
-					InventoryQuiver inv = new InventoryQuiver(test);
-					hasAmmo = inv.hasItem(Item.arrow.itemID);
+					ItemStack quiver = player.inventory.getStackInSlot(i);
+					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+					if (invQuiver.hasItem(Item.arrow.itemID))
+					{
+						quiverSlot = i;
+						hasAmmo = true;
+					}
 				}
 				++i;
 			}
@@ -182,9 +192,9 @@ public class SvrEventHandler
 			}
 
 			bow.damageItem(1, player);
-			// world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F
-			// / (itemRand * 0.4F + 1.2F) + f * 0.5F);
-			world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F);
+			world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F
+					/ (rand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+			//world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F);
 
 			if (infinateAmmo)
 			{
@@ -193,9 +203,9 @@ public class SvrEventHandler
 			{
 				if (quiverSlot >= 0)
 				{
-					ItemStack test = player.inventory.getStackInSlot(quiverSlot);
-					InventoryQuiver inv = new InventoryQuiver(test);
-					inv.consumeInventoryItem(Item.arrow.itemID);
+					ItemStack quiver = player.inventory.getStackInSlot(quiverSlot);
+					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+					invQuiver.consumeInventoryItem(Item.arrow.itemID);
 				} else player.inventory.consumeInventoryItem(Item.arrow.itemID);
 			}
 

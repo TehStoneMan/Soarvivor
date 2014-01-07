@@ -5,9 +5,12 @@ package soarvivor.inventory;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import soarvivor.items.Quiver;
-import soarvivor.lib.config.Settings;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Custom inventory slot that can only hold a quiver

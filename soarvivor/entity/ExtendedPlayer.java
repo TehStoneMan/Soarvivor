@@ -44,6 +44,11 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	 */
 	public final static String			EXT_PROP_NAME			= "SRVRExtendedPlayer";
 
+	private static final int			HOTBAR_START			= 0;
+	private static final int			HOTBAR_END				= HOTBAR_START + 8;
+	private static final int			INV_START				= HOTBAR_END + 19;
+	private static final int			INV_END					= INV_START + 8;
+
 	// Store a reference to the entity to which the properties belong for easy
 	// access. It's final because we won't be changing which player it is
 	private final EntityPlayer			player;
@@ -478,176 +483,59 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 	/**
 	 * Adds the item stack to the inventory, returns false if it is impossible.
 	 */
-	public boolean addItemStackToInventory(ItemStack itemstack)
+	public boolean addItemStackToInventory(ItemStack stackSource)
 	{
 		// Check if player is in creative mode, and do vanilla processing if so
 		if (this.player.capabilities.isCreativeMode)
-			return player.inventory.addItemStackToInventory(itemstack);
+			return player.inventory.addItemStackToInventory(stackSource);
 
-		LogHelper.log(Level.INFO, "addItemStackToInventory");
-		if (itemstack == null) return false;
-		else if (itemstack.stackSize == 0) return false;
+		if (stackSource == null) return false;
+		else if (stackSource.stackSize == 0) return false;
 		else
 		{
-			// try
-			// {
-			int i;
-
-			if (itemstack.isItemDamaged())
+			// Loop through inventory, adding items to available slots
+			int startSize = stackSource.stackSize;
+			int maxStackSize = Math.min(Settings.limitStackSize, stackSource.getMaxStackSize());
+			for (int count = 0; count < player.inventory.mainInventory.length; ++count)
 			{
-				i = this.getFirstEmptyStack();
-
-				if (i >= 0)
+				// Ignore inventory slots outside our "Limited Inventory" space
+				if (stackSource.stackSize > 0 && (count <= HOTBAR_END || count >= INV_START))
 				{
-					player.inventory.mainInventory[i] = ItemStack.copyItemStack(itemstack);
-					player.inventory.mainInventory[i].animationsToGo = 5;
-					itemstack.stackSize = 0;
-					return true;
-				} else return false;
-			} else
-			{
-				do
-				{
-					i = itemstack.stackSize;
-					itemstack.stackSize = this.storePartialItemStack(itemstack);
-				} while (itemstack.stackSize > 0 && itemstack.stackSize < i);
+					ItemStack stackTarget = player.inventory.mainInventory[count];
 
-				return itemstack.stackSize < i;
-			}
-			// } catch (Throwable throwable)
-			// {
-			// CrashReport crashreport = CrashReport.makeCrashReport(throwable,
-			// "Adding item to inventory");
-			// CrashReportCategory crashreportcategory = crashreport
-			// .makeCategory("Item being added");
-			// crashreportcategory.addCrashSection("Item ID",
-			// Integer.valueOf(itemstack.itemID));
-			// crashreportcategory.addCrashSection("Item data",
-			// Integer.valueOf(itemstack.getItemDamage()));
-			// crashreportcategory.addCrashSectionCallable("Item name", new
-			// CallableItemName(this,
-			// itemstack));
-			// throw new ReportedException(crashreport);
-			// }
-		}
-	}
-
-	/**
-	 * This function stores as many items of an ItemStack as possible in a
-	 * matching slot and returns the quantity of
-	 * left over items.
-	 */
-	private int storePartialItemStack(ItemStack itemstack)
-	{
-		int itemID = itemstack.itemID;
-		int stacksize = itemstack.stackSize;
-		int k;
-
-		if (itemstack.getMaxStackSize() == 1)
-		{
-			k = this.getFirstEmptyStack();
-
-			if (k < 0) return stacksize;
-			else
-			{
-				if (player.inventory.mainInventory[k] == null)
-					player.inventory.mainInventory[k] = ItemStack.copyItemStack(itemstack);
-
-				return 0;
-			}
-		} else
-		{
-			k = this.storeItemStack(itemstack);
-
-			if (k < 0)
-			{
-				k = this.getFirstEmptyStack();
-			}
-
-			if (k < 0)
-			{
-				return stacksize;
-			} else
-			{
-				if (player.inventory.mainInventory[k] == null)
-				{
-					player.inventory.mainInventory[k] = new ItemStack(itemID, 0,
-							itemstack.getItemDamage());
-
-					if (itemstack.hasTagCompound())
+					if (stackTarget == null)
 					{
-						player.inventory.mainInventory[k].setTagCompound((NBTTagCompound) itemstack
-								.getTagCompound().copy());
+						// Target slot is empty - Move as many items into it as it can hold
+						player.inventory.mainInventory[count] = ItemStack
+								.copyItemStack(stackSource);
+						player.inventory.mainInventory[count].stackSize = Math.min(maxStackSize,
+								stackSource.stackSize);
+						player.inventory.mainInventory[count].animationsToGo = 5;
+						stackSource.stackSize -= player.inventory.mainInventory[count].stackSize;
+					} else if (stackTarget.itemID == stackSource.itemID
+							&& stackTarget.isStackable()
+							&& stackTarget.stackSize < maxStackSize
+							&& (stackTarget.getHasSubtypes() || stackTarget.getItemDamage() == stackSource
+									.getItemDamage())
+							&& ItemStack.areItemStackTagsEqual(stackTarget, stackSource))
+					{
+						// Target slot holds the same item as we are picking up
+						if (stackTarget.stackSize + stackSource.stackSize <= maxStackSize)
+						{
+							stackTarget.stackSize += stackSource.stackSize;
+							player.inventory.mainInventory[count].animationsToGo = 5;
+							stackSource.stackSize = 0;
+						} else
+						{
+							int diff = maxStackSize - stackTarget.stackSize;
+							stackTarget.stackSize = maxStackSize;
+							player.inventory.mainInventory[count].animationsToGo = 5;
+							stackSource.stackSize -= diff;
+						}
 					}
 				}
-
-				int l = stacksize;
-
-				if (stacksize > player.inventory.mainInventory[k].getMaxStackSize()
-						- player.inventory.mainInventory[k].stackSize)
-				{
-					l = player.inventory.mainInventory[k].getMaxStackSize()
-							- player.inventory.mainInventory[k].stackSize;
-				}
-
-				if (l > player.inventory.getInventoryStackLimit()
-						- player.inventory.mainInventory[k].stackSize)
-				{
-					l = player.inventory.getInventoryStackLimit()
-							- player.inventory.mainInventory[k].stackSize;
-				}
-
-				if (l == 0)
-				{
-					return stacksize;
-				} else
-				{
-					stacksize -= l;
-					player.inventory.mainInventory[k].stackSize += l;
-					player.inventory.mainInventory[k].animationsToGo = 5;
-					return stacksize;
-				}
 			}
+			return stackSource.stackSize < startSize;
 		}
-	}
-
-	/**
-	 * Returns the first item stack that is empty.
-	 */
-	public int getFirstEmptyStack()
-	{
-		for (int i = 0; i < 9; ++i)
-			if (player.inventory.mainInventory[i] == null) return i;
-
-		int length = player.inventory.getSizeInventory();
-
-		for (int i = length - 8; i < length; ++i)
-			if (player.inventory.mainInventory[i] == null) return i;
-
-		return -1;
-	}
-
-	/**
-	 * stores an itemstack in the users inventory
-	 */
-	private int storeItemStack(ItemStack itemstack)
-	{
-		for (int i = 0; i < player.inventory.mainInventory.length; ++i)
-		{
-			if (i < 9 || i >= player.inventory.getSizeInventory() - 8)
-			{
-				ItemStack target = player.inventory.mainInventory[i];
-				if (target != null
-						&& target.itemID == itemstack.itemID
-						&& target.isStackable()
-						&& target.stackSize < target.getMaxStackSize()
-						&& target.stackSize < Settings.limitStackSize
-						&& (target.getHasSubtypes() || target.getItemDamage() == itemstack
-								.getItemDamage())
-						&& ItemStack.areItemStackTagsEqual(target, itemstack)) return i;
-			}
-		}
-
-		return -1;
 	}
 }

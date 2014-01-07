@@ -15,7 +15,7 @@ public class InventoryQuiver implements IInventory
 {
 	/** Define the inventory of this quiver */
 	public static final int	INV_SIZE	= 2;
-	protected ItemStack[]	inventory	= new ItemStack[INV_SIZE];
+	public ItemStack[]	inventory	= new ItemStack[INV_SIZE];
 
 	/** The name of this inventory */
 	private String			name		= "Quiver";

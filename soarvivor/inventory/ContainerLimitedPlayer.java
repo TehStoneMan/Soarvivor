@@ -7,10 +7,12 @@ import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import soarvivor.items.Quiver;
+import soarvivor.lib.config.Settings;
 
 /**
  * 
@@ -101,22 +103,19 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				.findMatchingRecipe(this.craftMatrix, this.thePlayer.worldObj));
 	}
 
-    public void onContainerClosed(EntityPlayer par1EntityPlayer)
-    {
-        super.onContainerClosed(par1EntityPlayer);
+	public void onContainerClosed(EntityPlayer player)
+	{
+		super.onContainerClosed(player);
 
-        for (int i = 0; i < 4; ++i)
-        {
-            ItemStack itemstack = this.craftMatrix.getStackInSlotOnClosing(i);
+		for (int i = 0; i < 4; ++i)
+		{
+			ItemStack itemstack = this.craftMatrix.getStackInSlotOnClosing(i);
 
-            if (itemstack != null)
-            {
-                par1EntityPlayer.dropPlayerItem(itemstack);
-            }
-        }
+			if (itemstack != null) player.dropPlayerItem(itemstack);
+		}
 
-        this.craftResult.setInventorySlotContents(0, (ItemStack)null);
-    }
+		this.craftResult.setInventorySlotContents(0, (ItemStack) null);
+	}
 
 	/**
 	 * This should always return true, since custom inventory can be accessed
@@ -152,7 +151,7 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				 */
 				if (!this.mergeItemStack(stackSource, INV_START, HOTBAR_END, false)) return null;
 				slot.onSlotChange(stackTarget, stackSource);
-			} else if (fromSlot == QUIVER_START)
+			} else if (fromSlot >= QUIVER_START && fromSlot <= QUIVER_END)
 			{
 				/*
 				 * Transfer from quiver slot to inventory/hotbar
@@ -167,6 +166,14 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				 * Handle our custom quiver item
 				 */
 				if (!this.mergeItemStack(stackSource, QUIVER_START, QUIVER_START + 1, false))
+					return null;
+			} else if (stackSource.getItem().itemID == Item.arrow.itemID
+					&& ((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack())
+			{
+				/*
+				 * Handle arrows
+				 */
+				if (!this.mergeItemStack(stackSource, QUIVER_START + 1, QUIVER_END + 1, false))
 					return null;
 			} else if (fromSlot >= ARMOR_START && fromSlot <= ARMOR_END)
 			{
@@ -210,5 +217,13 @@ public class ContainerLimitedPlayer extends LimitedContainer
 		}
 
 		return stackTarget;
+	}
+
+	public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer par4EntityPlayer)
+	{
+		if (!Settings.debug) return null;
+		if (par1 > QUIVER_START && par1 <= QUIVER_END
+				&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()) return null;
+		return super.slotClick(par1, par2, par3, par4EntityPlayer);
 	}
 }
