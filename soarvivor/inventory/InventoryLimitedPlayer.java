@@ -34,7 +34,8 @@ public class InventoryLimitedPlayer implements IInventory
 	 * class
 	 */
 	ItemStack[]				inventory	= new ItemStack[INV_SIZE];
-	ItemStack[]				invOld		= new ItemStack[INV_SIZE];
+	// ItemStack[] invOld = new ItemStack[INV_SIZE];
+	boolean					quiverFlag	= false;
 
 	public InventoryLimitedPlayer()
 	{
@@ -84,30 +85,6 @@ public class InventoryLimitedPlayer implements IInventory
 		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit())
 			itemstack.stackSize = this.getInventoryStackLimit();
 
-		if (slot == SLOT_QUIVER)
-		{
-			if (itemstack == null)
-			{
-				this.inventory[1] = null;
-				this.inventory[2] = null;
-				this.invOld[1] = null;
-				this.invOld[2] = null;
-			} else
-			{
-				InventoryQuiver inv = new InventoryQuiver(itemstack);
-				this.inventory[1] = inv.getStackInSlot(0);
-				this.inventory[2] = inv.getStackInSlot(1);
-				this.invOld[1] = inv.getStackInSlot(0);
-				this.invOld[2] = inv.getStackInSlot(1);
-			}
-			// } else if (this.inventory[0] != null)
-			// {
-			// LogHelper.log(Level.INFO, "itemstack == " + itemstack);
-			// InventoryQuiver inv = new InventoryQuiver(this.inventory[0]);
-			// inv.inventory[slot - 1] = this.inventory[slot];
-			// inv.onInventoryChanged();
-		}
-
 		this.onInventoryChanged();
 	}
 
@@ -132,35 +109,31 @@ public class InventoryLimitedPlayer implements IInventory
 	@Override
 	public void onInventoryChanged()
 	{
-		LogHelper.log(Level.INFO, "onInventoryChanged");
+		if (this.inventory[0] == null)
+		{
+			this.inventory[1] = null;
+			this.inventory[2] = null;
+			quiverFlag = false;
+		} else
+		{
+			ItemStack quiver = this.inventory[SLOT_QUIVER];
+			InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+			if (quiverFlag)
+			{
+				invQuiver.inventory[0] = this.inventory[1];
+				invQuiver.inventory[1] = this.inventory[2];
+			} else
+			{
+				this.inventory[1] = invQuiver.inventory[0];
+				this.inventory[2] = invQuiver.inventory[1];
+				quiverFlag = true;
+			}
+			invQuiver.onInventoryChanged();
+		}
 		for (int i = 0; i < this.getSizeInventory(); ++i)
 		{
-			LogHelper.log(Level.INFO, "Index " + i + " : " + this.inventory[i] + " : "
-					+ this.invOld[i]);
 			if (this.inventory[i] != null && this.inventory[i].stackSize == 0)
 				this.inventory[i] = null;
-
-			if (this.inventory[i] != this.invOld[i])
-			{
-				if (this.inventory[SLOT_QUIVER] == null) this.inventory[i] = null;
-				else if (i > 0)
-				{
-					ItemStack quiver = this.inventory[SLOT_QUIVER];
-					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
-					LogHelper.log(Level.INFO, quiver + " : " + this.inventory[i] + " : "
-							+ invQuiver.inventory[i - 1]);
-					invQuiver.inventory[i - 1] = this.inventory[i];
-				}
-			}
-
-			this.invOld[i] = this.inventory[i];
-			if (this.inventory[SLOT_QUIVER] != null)
-			{
-				LogHelper.log(Level.INFO, "Quiver changed");
-				ItemStack quiver = this.inventory[SLOT_QUIVER];
-				InventoryQuiver invQuiver = new InventoryQuiver(quiver);
-				invQuiver.onInventoryChanged();
-			}
 		}
 	}
 
@@ -181,7 +154,6 @@ public class InventoryLimitedPlayer implements IInventory
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
-		if (!Settings.debug) return false;
 		if (slot == SLOT_QUIVER && itemstack.itemID == Ids.quiver) return true;
 		else if (slot != SLOT_QUIVER && itemstack.itemID == Item.arrow.itemID)
 		{

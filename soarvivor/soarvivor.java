@@ -30,8 +30,8 @@ import soarvivor.items.Items;
 import soarvivor.items.Recipies;
 import soarvivor.lib.LogHelper;
 import soarvivor.lib.ModInfo;
-import soarvivor.lib.RegisterKeyBindings;
 import soarvivor.lib.SvrEventHandler;
+import soarvivor.lib.SvrKeyHandler;
 import soarvivor.lib.config.ConfigHandler;
 import soarvivor.proxies.CommonProxy;
 import soarvivor.util.DebugInfo;
@@ -50,8 +50,8 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 // Setup mod info
 @Mod(modid = ModInfo.ID, name = ModInfo.NAME, version = ModInfo.VERSION)
 // Setup mod network channel
-@NetworkMod(channels = ModInfo.CHANNEL, clientSideRequired = true,
-		serverSideRequired = true, packetHandler = PacketHandler.class)
+@NetworkMod(channels = ModInfo.CHANNEL, clientSideRequired = true, serverSideRequired = true,
+		packetHandler = PacketHandler.class)
 /**
  * 
  * @author TehStoneMan
@@ -98,6 +98,9 @@ public class soarvivor
 	@EventHandler
 	public void Init(FMLInitializationEvent event)
 	{
+		LogHelper.log(Level.INFO, "Registering keys.");
+		SvrKeyHandler.init();
+
 		LogHelper.log(Level.INFO, "Preparing items.");
 		Items.init();
 		Items.addNames();
@@ -123,12 +126,11 @@ public class soarvivor
 		NetworkRegistry.instance().registerGuiHandler(this, new CommonProxy());
 
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-			MinecraftForge.EVENT_BUS.register(new GuiHydrationBar(Minecraft
-					.getMinecraft()));
+			MinecraftForge.EVENT_BUS.register(new GuiHydrationBar(Minecraft.getMinecraft()));
 
 		// Register KeyHandler
-		if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-			RegisterKeyBindings.init();
+		// if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+		// RegisterKeyBindings.init();
 
 		// Register tick handler
 		proxy.registerServerTickHandler();

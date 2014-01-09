@@ -160,7 +160,8 @@ public class ContainerLimitedPlayer extends LimitedContainer
 
 				slot.onSlotChange(stackSource, stackTarget);
 			} else if (stackSource.getItem() instanceof Quiver
-					&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack())
+					&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()
+					&& !Settings.debug)
 			{
 				/*
 				 * Handle our custom quiver item
@@ -168,7 +169,8 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				if (!this.mergeItemStack(stackSource, QUIVER_START, QUIVER_START + 1, false))
 					return null;
 			} else if (stackSource.getItem().itemID == Item.arrow.itemID
-					&& ((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack())
+					&& ((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()
+					&& !Settings.debug)
 			{
 				/*
 				 * Handle arrows
@@ -219,11 +221,11 @@ public class ContainerLimitedPlayer extends LimitedContainer
 		return stackTarget;
 	}
 
-	public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer par4EntityPlayer)
+	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
 	{
-		if (!Settings.debug) return null;
-		if (par1 > QUIVER_START && par1 <= QUIVER_END
+		if (!Settings.debug && slot > QUIVER_START && slot <= QUIVER_END) return null;
+		if (slot > QUIVER_START && slot <= QUIVER_END
 				&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()) return null;
-		return super.slotClick(par1, par2, par3, par4EntityPlayer);
+		return super.slotClick(slot, par2, par3, player);
 	}
 }

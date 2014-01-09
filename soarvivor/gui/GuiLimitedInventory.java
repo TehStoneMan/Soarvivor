@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL12;
 import soarvivor.inventory.ContainerLimitedPlayer;
 import soarvivor.inventory.InventoryLimitedPlayer;
 import soarvivor.lib.ModInfo;
+import soarvivor.lib.config.Settings;
 
 /**
  * 
@@ -81,7 +82,8 @@ public class GuiLimitedInventory extends GuiContainer
 		if (inventory.getStackInSlot(0) == null)
 		{
 			// x = 8, y = 84
-			this.drawTexturedModalRect(xPos + 7, yPos + 83, 162, 234, 18, 18);
+			if (!Settings.debug) this.drawTexturedModalRect(xPos + 7, yPos + 83, 144, 234, 18, 18);
+			else this.drawTexturedModalRect(xPos + 7, yPos + 83, 162, 234, 18, 18);
 			this.drawTexturedModalRect(xPos + 25, yPos + 83, 144, 234, 18, 18);
 			this.drawTexturedModalRect(xPos + 43, yPos + 83, 144, 234, 18, 18);
 		} else
