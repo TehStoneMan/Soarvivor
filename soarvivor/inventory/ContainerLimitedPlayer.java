@@ -71,7 +71,8 @@ public class ContainerLimitedPlayer extends LimitedContainer
 		// Add CUSTOM slots - we'll just add two for now, both of the same type.
 		// Make a new Slot class for each different item type you want to add
 		for (i = 0; i < 3; ++i)
-			if (i == 0) this.addSlotToContainer(new SlotQuiver(inventoryCustom, i, 8 + i * 18, 84));
+			if (i == 0)
+				this.addSlotToContainer(new SlotQuiver(inventoryCustom, i, 8 + i * 18, 84));
 			else this.addSlotToContainer(new SlotArrow(inventoryCustom, i, 8 + i * 18, 84));
 
 		// Add ARMOR slots; note you need to make a public version of SlotArmor
@@ -114,7 +115,7 @@ public class ContainerLimitedPlayer extends LimitedContainer
 			if (itemstack != null) player.dropPlayerItem(itemstack);
 		}
 
-		this.craftResult.setInventorySlotContents(0, (ItemStack) null);
+		this.craftResult.setInventorySlotContents(0, (ItemStack)null);
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class ContainerLimitedPlayer extends LimitedContainer
 	public ItemStack transferStackInSlot(EntityPlayer player, int fromSlot)
 	{
 		ItemStack stackTarget = null;
-		Slot slot = (Slot) this.inventorySlots.get(fromSlot);
+		Slot slot = (Slot)this.inventorySlots.get(fromSlot);
 
 		if (slot != null && slot.getHasStack())
 		{
@@ -160,8 +161,7 @@ public class ContainerLimitedPlayer extends LimitedContainer
 
 				slot.onSlotChange(stackSource, stackTarget);
 			} else if (stackSource.getItem() instanceof Quiver
-					&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()
-					&& !Settings.debug)
+					&& !((Slot)this.inventorySlots.get(QUIVER_START)).getHasStack())
 			{
 				/*
 				 * Handle our custom quiver item
@@ -169,8 +169,7 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				if (!this.mergeItemStack(stackSource, QUIVER_START, QUIVER_START + 1, false))
 					return null;
 			} else if (stackSource.getItem().itemID == Item.arrow.itemID
-					&& ((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()
-					&& !Settings.debug)
+					&& ((Slot)this.inventorySlots.get(QUIVER_START)).getHasStack())
 			{
 				/*
 				 * Handle arrows
@@ -186,13 +185,13 @@ public class ContainerLimitedPlayer extends LimitedContainer
 
 				slot.onSlotChange(stackSource, stackTarget);
 			} else if (stackSource.getItem() instanceof ItemArmor
-					&& !((Slot) this.inventorySlots.get(ARMOR_START
-							+ ((ItemArmor) stackSource.getItem()).armorType)).getHasStack())
+					&& !((Slot)this.inventorySlots.get(ARMOR_START
+							+ ((ItemArmor)stackSource.getItem()).armorType)).getHasStack())
 			{
 				/*
 				 * Handle armor item
 				 */
-				int type = ((ItemArmor) stackSource.getItem()).armorType;
+				int type = ((ItemArmor)stackSource.getItem()).armorType;
 				if (!this.mergeItemStack(stackSource, ARMOR_START + type, ARMOR_START + type + 1,
 						false)) return null;
 			} else if (fromSlot >= INV_START && fromSlot <= INV_END)
@@ -210,7 +209,8 @@ public class ContainerLimitedPlayer extends LimitedContainer
 				if (!this.mergeItemStack(stackSource, INV_START, INV_END, false)) return null;
 			}
 
-			if (stackSource.stackSize == 0) slot.putStack((ItemStack) null);
+			if (stackSource.stackSize == 0)
+				slot.putStack((ItemStack)null);
 			else slot.onSlotChanged();
 
 			if (stackSource.stackSize == stackTarget.stackSize) return null;
@@ -223,9 +223,8 @@ public class ContainerLimitedPlayer extends LimitedContainer
 
 	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
 	{
-		if (!Settings.debug && slot > QUIVER_START && slot <= QUIVER_END) return null;
 		if (slot > QUIVER_START && slot <= QUIVER_END
-				&& !((Slot) this.inventorySlots.get(QUIVER_START)).getHasStack()) return null;
+				&& !((Slot)this.inventorySlots.get(QUIVER_START)).getHasStack()) return null;
 		return super.slotClick(slot, par2, par3, player);
 	}
 }

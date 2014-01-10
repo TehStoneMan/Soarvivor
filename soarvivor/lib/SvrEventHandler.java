@@ -26,10 +26,17 @@ import soarvivor.entity.ExtendedPlayer;
 import soarvivor.inventory.InventoryQuiver;
 import soarvivor.items.Items;
 
+/**
+ * 
+ * @author TehStoneMan
+ */
 public class SvrEventHandler
 {
 	protected Random	rand;
 
+	/*--------------------------------------*
+	 * Player events
+	 *--------------------------------------*/
 	@ForgeSubscribe
 	public void onEntityConstructing(EntityConstructing event)
 	{
@@ -40,11 +47,11 @@ public class SvrEventHandler
 		 * registered once per entity
 		 */
 		if (event.entity instanceof EntityPlayer
-				&& ExtendedPlayer.get((EntityPlayer) event.entity) == null)
+				&& ExtendedPlayer.get((EntityPlayer)event.entity) == null)
 
 		// This is how extended properties are registered using our convenient
 		// method from earlier
-			ExtendedPlayer.register((EntityPlayer) event.entity);
+			ExtendedPlayer.register((EntityPlayer)event.entity);
 		// That will call the constructor as well as cause the init() method
 		// to be called automatically
 	}
@@ -56,47 +63,56 @@ public class SvrEventHandler
 		// server side) and only for player entities, as that's what we need for
 		// the GuiHydrationBar
 		if (!event.entity.worldObj.isRemote && event.entity instanceof EntityPlayer)
-			ExtendedPlayer.get((EntityPlayer) event.entity).sync();
+			ExtendedPlayer.get((EntityPlayer)event.entity).sync();
 	}
 
+	/*--------------------------------------*
+	 * Arrow events
+	 *--------------------------------------*/
 	@ForgeSubscribe
 	public void onArrowNockEvent(ArrowNockEvent event)
 	{
 		// Variables from event
 		EntityPlayer player = event.entityPlayer;
+		ExtendedPlayer props = ExtendedPlayer.get(player);
 		ItemStack result = event.result;
+
 		int quiverSlot = -1;
 
 		// Replace vanilla code with our own
 
 		// Check for creative mode
 		boolean infinateAmmo = player.capabilities.isCreativeMode;
+		boolean hasAmmo = false;
 
-		// Check for arrows in equipped quiver
-		// ** Quiver armour slot yet implemented **
-		boolean hasAmmo = infinateAmmo;
-
-		// Check for arrows loose in player inventory
-		hasAmmo = (hasAmmo || player.inventory.hasItem(Item.arrow.itemID));
-
-		// Check inventory for quivers
-		if (!hasAmmo && player.inventory.hasItem(Items.quiver.itemID))
+		if (!infinateAmmo)
 		{
-			int i = 0;
-			while (!hasAmmo && i < player.inventory.getSizeInventory())
+			// Check for arrows in equipped quiver
+			ItemStack quiver = props.ltdInventory.getStackInSlot(0);
+			if (quiver != null)
 			{
-				if (player.inventory.getStackInSlot(i) != null
-						&& player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
+				InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+				hasAmmo = invQuiver.hasItem(Item.arrow.itemID);
+			}
+
+			// Check for arrows loose in player inventory
+			hasAmmo = (hasAmmo || player.inventory.hasItem(Item.arrow.itemID));
+
+			// Check inventory for quivers
+			if (!hasAmmo && player.inventory.hasItem(Items.quiver.itemID))
+			{
+				int i = 0;
+				while (!hasAmmo && i < player.inventory.getSizeInventory())
 				{
-					ItemStack quiver = player.inventory.getStackInSlot(i);
-					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
-					if (invQuiver.hasItem(Item.arrow.itemID))
+					if (player.inventory.getStackInSlot(i) != null
+							&& player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
 					{
-						quiverSlot = i;
-						hasAmmo = true;
+						quiver = player.inventory.getStackInSlot(i);
+						InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+						hasAmmo = invQuiver.hasItem(Item.arrow.itemID);
 					}
+					++i;
 				}
-				++i;
 			}
 		}
 
@@ -115,50 +131,63 @@ public class SvrEventHandler
 		// Variables from event
 		ItemStack bow = event.bow;
 		EntityPlayer player = event.entityPlayer;
+		ExtendedPlayer props = ExtendedPlayer.get(player);
+
 		int charge = event.charge;
 		World world = player.worldObj;
 		int quiverSlot = -1;
+
+		ItemStack quiver = null;
+		// InventoryQuiver invQuiver = null;
 
 		// Replace vanilla code with our own
 
 		// Check for creative mode or infinity enchantment
 		boolean infinateAmmo = player.capabilities.isCreativeMode
 				|| EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, bow) > 0;
+		boolean hasAmmo = false;
 
-		// Check for arrows in equipped quiver
-		// ** Quiver armour slot yet implemented **
-		boolean hasAmmo = infinateAmmo;
-
-		// Check for arrows loose in player inventory
-		hasAmmo = (hasAmmo || player.inventory.hasItem(Item.arrow.itemID));
-
-		// Check inventory for quivers
-		if (!hasAmmo && player.inventory.hasItem(Items.quiver.itemID))
+		if (!infinateAmmo)
 		{
-			int i = 0;
-			while (!hasAmmo && i < player.inventory.getSizeInventory())
+			// Check for arrows in equipped quiver
+			quiver = props.ltdInventory.getStackInSlot(0);
+			if (quiver != null)
 			{
-				if (player.inventory.getStackInSlot(i) != null
-						&& player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
+				InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+				hasAmmo = invQuiver.hasItem(Item.arrow.itemID);
+			}
+
+			// Check for arrows loose in player inventory
+			hasAmmo = (hasAmmo || player.inventory.hasItem(Item.arrow.itemID));
+
+			// Check inventory for quivers
+			if (!hasAmmo && player.inventory.hasItem(Items.quiver.itemID))
+			{
+				int i = 0;
+				while (!hasAmmo && i < player.inventory.getSizeInventory())
 				{
-					ItemStack quiver = player.inventory.getStackInSlot(i);
-					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
-					if (invQuiver.hasItem(Item.arrow.itemID))
+					if (player.inventory.getStackInSlot(i) != null
+							&& player.inventory.getStackInSlot(i).itemID == Items.quiver.itemID)
 					{
-						quiverSlot = i;
-						hasAmmo = true;
+						quiver = player.inventory.getStackInSlot(i);
+						InventoryQuiver invQuiver = new InventoryQuiver(quiver);
+						if (invQuiver.hasItem(Item.arrow.itemID))
+						{
+							quiverSlot = i;
+							hasAmmo = true;
+						}
 					}
+					++i;
 				}
-				++i;
 			}
 		}
 
-		if (hasAmmo)
+		if (hasAmmo || infinateAmmo)
 		{
-			float f = (float) charge / 20.0F;
+			float f = (float)charge / 20.0F;
 			f = (f * f + f * 2.0F) / 3.0F;
 
-			if ((double) f < 0.1D) { return; }
+			if ((double)f < 0.1D){ return; }
 
 			if (f > 1.0F)
 			{
@@ -176,7 +205,7 @@ public class SvrEventHandler
 
 			if (k > 0)
 			{
-				entityarrow.setDamage(entityarrow.getDamage() + (double) k * 0.5D + 0.5D);
+				entityarrow.setDamage(entityarrow.getDamage() + (double)k * 0.5D + 0.5D);
 			}
 
 			int l = EnchantmentHelper.getEnchantmentLevel(Enchantment.punch.effectId, bow);
@@ -194,16 +223,14 @@ public class SvrEventHandler
 			bow.damageItem(1, player);
 			world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F
 					/ (rand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
-			//world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F);
 
 			if (infinateAmmo)
 			{
 				entityarrow.canBePickedUp = 2;
 			} else
 			{
-				if (quiverSlot >= 0)
+				if (quiver != null)
 				{
-					ItemStack quiver = player.inventory.getStackInSlot(quiverSlot);
 					InventoryQuiver invQuiver = new InventoryQuiver(quiver);
 					invQuiver.consumeInventoryItem(Item.arrow.itemID);
 				} else player.inventory.consumeInventoryItem(Item.arrow.itemID);
@@ -219,6 +246,9 @@ public class SvrEventHandler
 		if (event.isCancelable()) event.setCanceled(true);
 	}
 
+	/*--------------------------------------*
+	 * Item pickup events
+	 *--------------------------------------*/
 	@ForgeSubscribe
 	public void onItemPickupEvent(EntityItemPickupEvent event)
 	{

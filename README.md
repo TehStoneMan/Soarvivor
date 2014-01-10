@@ -7,6 +7,9 @@ Features include:
 
  * Configurable "limited-stack" size - defaults to 16
      This will limit the size of item-stacks in the player's inventory. Does not effect chests or other containers.
+ 
+ * Limited player inventory
+     Player inventory is limited to only the hotbar and the lowest row.
 
  * Makeshift quiver craftable form leather boots and two pieces of string
      The quiver can hold two "limited-stacks" of arrows. Right-click with the quiver in your hand to open the gui interface. When using the bow, arrows will be automatically drawn from the quiver.
@@ -25,5 +28,12 @@ Features include:
 To Do:
 ======
 
-* Limit the player's inventory to one line + the hot bar
-* Limit the stack size in the player's inventory
+* Apply the limited player inventory to other comtainers.
+
+Future Ideas:
+=============
+(NOTE: These may not be implemented)
+
+* Canoe - Double length boat that can carry a passenger
+* Canteen - Uncraftable item that carries 8x water bottle
+* Pro quiver - Uncraftable quiver that carries 4x limited-stacks of arrows
