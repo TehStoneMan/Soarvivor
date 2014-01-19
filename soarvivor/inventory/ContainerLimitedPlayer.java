@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import soarvivor.entity.ExtendedPlayer;
 import soarvivor.items.Quiver;
-import soarvivor.lib.config.Settings;
 
 /**
  * 
@@ -234,11 +233,21 @@ public class ContainerLimitedPlayer extends LimitedContainer {
     }
 
     public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player) {
+	if (slot == QUIVER_START) {
+	    // Contents of the quiver slot is invalid = set the flag to false
+	    ExtendedPlayer props = ExtendedPlayer.get(player);
+	    InventoryLimitedPlayer ltdInv = props.ltdInventory;
+	    ltdInv.quiverFlag = false;
+	}
+
+	// Cannot interact with "arrow" slots if the "quiver" slot is empty
 	if (slot > QUIVER_START
 		&& slot <= QUIVER_END
 		&& !((Slot) this.inventorySlots.get(QUIVER_START))
 			.getHasStack())
 	    return null;
+
+	// Perform vanilla operations
 	return super.slotClick(slot, par2, par3, player);
     }
 }

@@ -3,13 +3,10 @@
  */
 package soarvivor.inventory;
 
-import java.util.logging.Level;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import soarvivor.items.Quiver;
-import soarvivor.lib.LogHelper;
 
 /**
  * Custom inventory slot that can only hold a quiver
@@ -41,7 +38,9 @@ public class SlotQuiver extends Slot {
 
     @Override
     public void onSlotChanged() {
-	super.onSlotChanged();
+	// ((InventoryLimitedPlayer) this.inventory).quiverFlag = false;
 	((InventoryLimitedPlayer) this.inventory).loadFromQuiver();
+	((InventoryLimitedPlayer) this.inventory).onInventoryChanged();
+	super.onSlotChanged();
     }
 }

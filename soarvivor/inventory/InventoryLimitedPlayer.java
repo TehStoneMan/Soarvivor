@@ -1,14 +1,11 @@
 package soarvivor.inventory;
 
-import java.util.logging.Level;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import soarvivor.lib.LogHelper;
 import soarvivor.lib.config.Ids;
 import soarvivor.lib.config.Settings;
 
@@ -106,9 +103,6 @@ public class InventoryLimitedPlayer implements IInventory {
 	    if (this.inventory[i] != null && this.inventory[i].stackSize == 0)
 		this.inventory[i] = null;
 	}
-	if (this.inventory[0] != null)
-	    LogHelper.log(Level.INFO, "onInventoryChanged : Quiver " + this.inventory[1] + " : "
-		    + this.inventory[2]);
     }
 
     @Override
@@ -210,16 +204,11 @@ public class InventoryLimitedPlayer implements IInventory {
      * Helper method to load contents from equipped quiver
      */
     public void loadFromQuiver() {
-	LogHelper.log(Level.INFO, "loadFromQuiver "
-		+ this.inventory[SLOT_QUIVER]);
 	if (this.inventory[SLOT_QUIVER] != null) {
 	    ItemStack quiver = this.inventory[SLOT_QUIVER];
 	    InventoryQuiver invQuiver = new InventoryQuiver(quiver);
 
-	    // invQuiver.loadNBTData(quiver.getTagCompound());
-
-	    LogHelper.log(Level.INFO, "Quiver contains "
-		    + invQuiver.inventory[0] + " : " + invQuiver.inventory[1]);
+	    invQuiver.loadNBTData(quiver.getTagCompound());
 
 	    this.inventory[SLOT_QUIVER + 1] = invQuiver.inventory[0];
 	    this.inventory[SLOT_QUIVER + 2] = invQuiver.inventory[1];

@@ -136,13 +136,9 @@ public class ExtendedPlayer implements IExtendedEntityProperties {
      * for ExtendedPlayer
      */
     public final void sync() {
-	// Check if data has actually changed
-	if (wetLevel == prevWetLevel && iceLevel == prevIceLevel)
-	    return;
 
 	// We only want to send from the server to the client
 	if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
-	    // LogHelper.log(Level.INFO, "Sync");
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream(8);
 	    DataOutputStream outputStream = new DataOutputStream(bos);
 
@@ -466,74 +462,74 @@ public class ExtendedPlayer implements IExtendedEntityProperties {
     // Save any custom data that needs saving here
     @Override
     public void saveNBTData(NBTTagCompound compound) {
-        // We need to create a new tag compound that will save everything for
-        // our Extended Properties
-        NBTTagCompound properties = new NBTTagCompound();
-    
-        // We only have 2 variables currently; save them both to the new tag
-        properties.setInteger("currentHydration", this.getCurrentHydration());
-        properties.setInteger("currentIce", this.getCurrentIce());
-    
-        properties.setFloat("waterSaturationLevel", this.waterSaturationLevel);
-    
-        // The player's water exhaustion.
-        properties.setFloat("waterExhaustionLevel", this.waterExhaustionLevel);
-        properties.setFloat("prevFoodExhaustionLevel",
-        	this.prevFoodExhaustionLevel);
-    
-        // The player's water timer value.
-        properties.setInteger("waterTimer", this.waterTimer);
-        properties.setInteger("iceTimer", this.iceTimer);
-        properties.setInteger("prevWetLevel", this.prevWetLevel);
-        properties.setInteger("prevIceLevel", this.prevIceLevel);
-    
-        // Timer for calculating environmental effects
-        properties.setInteger("envTimer", this.envTimer);
-    
-        // Save custom inventory from NBT
-        this.ltdInventory.saveNBTData(properties);
-    
-        /*
-         * Now add our custom tag to the player's tag with a unique name (our
-         * property's name). This will allow you to save multiple types of
-         * properties and distinguish between them. If you only have one type,
-         * it isn't as important, but it will still avoid conflicts between your
-         * tag names and vanilla tag names. For instance, if you add some
-         * "Items" tag, that will conflict with vanilla. Not good. So just use a
-         * unique tag name.
-         */
-        compound.setTag(EXT_PROP_NAME, properties);
+	// We need to create a new tag compound that will save everything for
+	// our Extended Properties
+	NBTTagCompound properties = new NBTTagCompound();
+
+	// We only have 2 variables currently; save them both to the new tag
+	properties.setInteger("currentHydration", this.getCurrentHydration());
+	properties.setInteger("currentIce", this.getCurrentIce());
+
+	properties.setFloat("waterSaturationLevel", this.waterSaturationLevel);
+
+	// The player's water exhaustion.
+	properties.setFloat("waterExhaustionLevel", this.waterExhaustionLevel);
+	properties.setFloat("prevFoodExhaustionLevel",
+		this.prevFoodExhaustionLevel);
+
+	// The player's water timer value.
+	properties.setInteger("waterTimer", this.waterTimer);
+	properties.setInteger("iceTimer", this.iceTimer);
+	properties.setInteger("prevWetLevel", this.prevWetLevel);
+	properties.setInteger("prevIceLevel", this.prevIceLevel);
+
+	// Timer for calculating environmental effects
+	properties.setInteger("envTimer", this.envTimer);
+
+	// Save custom inventory from NBT
+	this.ltdInventory.saveNBTData(properties);
+
+	/*
+	 * Now add our custom tag to the player's tag with a unique name (our
+	 * property's name). This will allow you to save multiple types of
+	 * properties and distinguish between them. If you only have one type,
+	 * it isn't as important, but it will still avoid conflicts between your
+	 * tag names and vanilla tag names. For instance, if you add some
+	 * "Items" tag, that will conflict with vanilla. Not good. So just use a
+	 * unique tag name.
+	 */
+	compound.setTag(EXT_PROP_NAME, properties);
     }
 
     // Load whatever data you saved
     @Override
     public void loadNBTData(NBTTagCompound compound) {
-        // Here we fetch the unique tag compound we set for this class of
-        // Extended Properties
-        NBTTagCompound properties = (NBTTagCompound) compound
-        	.getTag(EXT_PROP_NAME);
-    
-        // Get our data from the custom tag compound
-        this.wetLevel = properties.getInteger("currentHydration");
-        this.iceLevel = properties.getInteger("currentIce");
-    
-        // The player's water exhaustion.
-        this.waterExhaustionLevel = properties.getFloat("waterExhaustionLevel");
-        this.prevFoodExhaustionLevel = properties
-        	.getFloat("prevFoodExhaustionLevel");
-    
-        // The player's water timer value.
-        this.waterTimer = properties.getInteger("waterTimer");
-        this.iceTimer = properties.getInteger("iceTimer");
-        this.prevWetLevel = properties.getInteger("prevWetLevel");
-        this.prevIceLevel = properties.getInteger("prevIceLevel");
-    
-        // Timer for calculating environmental effects
-        this.envTimer = properties.getInteger("envTimer");
-    
-        // Write custom inventory to NBT
-        this.ltdInventory.loadNBTData(properties);
-    
-        sync();
+	// Here we fetch the unique tag compound we set for this class of
+	// Extended Properties
+	NBTTagCompound properties = (NBTTagCompound) compound
+		.getTag(EXT_PROP_NAME);
+
+	// Get our data from the custom tag compound
+	this.wetLevel = properties.getInteger("currentHydration");
+	this.iceLevel = properties.getInteger("currentIce");
+
+	// The player's water exhaustion.
+	this.waterExhaustionLevel = properties.getFloat("waterExhaustionLevel");
+	this.prevFoodExhaustionLevel = properties
+		.getFloat("prevFoodExhaustionLevel");
+
+	// The player's water timer value.
+	this.waterTimer = properties.getInteger("waterTimer");
+	this.iceTimer = properties.getInteger("iceTimer");
+	this.prevWetLevel = properties.getInteger("prevWetLevel");
+	this.prevIceLevel = properties.getInteger("prevIceLevel");
+
+	// Timer for calculating environmental effects
+	this.envTimer = properties.getInteger("envTimer");
+
+	// Write custom inventory to NBT
+	this.ltdInventory.loadNBTData(properties);
+
+	sync();
     }
 }
