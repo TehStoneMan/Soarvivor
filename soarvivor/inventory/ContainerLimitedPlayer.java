@@ -51,7 +51,8 @@ public class ContainerLimitedPlayer extends LimitedContainer {
 	    InventoryLimitedPlayer inventoryCustom) {
 	// Get the player that this inventory belongs to
 	this.thePlayer = player;
-	inventoryCustom.quiverFlag = false;
+	//inventoryCustom.quiverFlag = false;
+	inventoryCustom.loadFromQuiver();
 	// inventoryCustom.onInventoryChanged();
 
 	// Add crafting slots
@@ -154,7 +155,6 @@ public class ContainerLimitedPlayer extends LimitedContainer {
 		if (!this.mergeItemStack(stackSource, INV_START, HOTBAR_END,
 			false))
 		    return null;
-		slot.onSlotChange(stackTarget, stackSource);
 	    } else if (fromSlot >= QUIVER_START && fromSlot <= QUIVER_END) {
 		/*
 		 * Transfer from quiver slot to inventory/hotbar
@@ -162,8 +162,6 @@ public class ContainerLimitedPlayer extends LimitedContainer {
 		if (!this.mergeItemStack(stackSource, INV_START, HOTBAR_END,
 			false))
 		    return null;
-
-		slot.onSlotChange(stackSource, stackTarget);
 	    } else if (stackSource.getItem() instanceof Quiver
 		    && !((Slot) this.inventorySlots.get(QUIVER_START))
 			    .getHasStack()) {
@@ -189,8 +187,6 @@ public class ContainerLimitedPlayer extends LimitedContainer {
 		if (!this.mergeItemStack(stackSource, INV_START, HOTBAR_END,
 			false))
 		    return null;
-
-		slot.onSlotChange(stackSource, stackTarget);
 	    } else if (stackSource.getItem() instanceof ItemArmor
 		    && !((Slot) this.inventorySlots.get(ARMOR_START
 			    + ((ItemArmor) stackSource.getItem()).armorType))

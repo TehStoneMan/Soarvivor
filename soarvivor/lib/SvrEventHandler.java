@@ -213,6 +213,7 @@ public class SvrEventHandler {
 		if (quiver != null) {
 		    InventoryQuiver invQuiver = new InventoryQuiver(quiver);
 		    invQuiver.consumeInventoryItem(Item.arrow.itemID);
+		    props.ltdInventory.quiverFlag = false;
 		    props.ltdInventory.loadFromQuiver();
 		} else
 		    player.inventory.consumeInventoryItem(Item.arrow.itemID);
@@ -233,6 +234,7 @@ public class SvrEventHandler {
      *--------------------------------------*/
     @ForgeSubscribe
     public void onItemPickupEvent(EntityItemPickupEvent event) {
+	LogHelper.log(Level.INFO, "onItemPickupEvent");
 	this.rand = new Random();
 
 	EntityPlayer player = event.entityPlayer;
